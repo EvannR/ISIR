@@ -4,3 +4,6 @@ _pycache_/
 .DS_Store
 .idea/
 .vscode/
+agents_graph/__pycache__/
+agents_graph/*.pyc
+

@@ -1,0 +1,297 @@
+"""
+Social Graph Module
+
+Manages social graph topology and neighbor relationships.
+Edges define who can "see" whose emotions for empathic reward calculation.
+Supports static topology with weight hooks for future affiliation theory.
+"""
+
+import numpy as np
+from typing import List, Dict, Optional
+
+
+class SocialGraph:
+    """
+    Manages social connections between agents as a graph structure.
+
+    Attributes:
+        num_agents: Number of agents (nodes) in the graph
+        adjacency: Binary adjacency matrix (num_agents x num_agents)
+        weights: Edge weights matrix for future affiliation theory
+        directed: Whether graph is directed (default: False, undirected)
+    """
+
+    def __init__(
+        self,
+        num_agents: int,
+        graph_type: str = 'random',
+        edge_probability: float = 0.3,
+        k: int = 2,                          # Small-world: neighbors per side
+        p: float = 0.1,                      # Small-world: rewiring probability
+        adjacency_matrix: Optional[np.ndarray] = None,
+        directed: bool = False,
+        seed: Optional[int] = None
+    ):
+        """
+        Initialize the social graph.
+
+        Args:
+            num_agents: Number of agents (nodes)
+            graph_type: Type of graph - 'random', 'small_world', 'fully_connected',
+                       'ring', or 'custom'
+            edge_probability: Edge probability for random graph (Erdos-Renyi)
+            k: Number of neighbors on each side for small-world (Watts-Strogatz)
+            p: Rewiring probability for small-world
+            adjacency_matrix: Custom adjacency matrix (for 'custom' type)
+            directed: If True, edges are directed; if False, symmetric
+            seed: Random seed for reproducibility
+        """
+        self.num_agents = num_agents
+        self.directed = directed
+        self.rng = np.random.default_rng(seed)
+
+        # Initialize adjacency and weights matrices
+        self.adjacency = np.zeros((num_agents, num_agents), dtype=np.float32)
+        self.weights = np.ones((num_agents, num_agents), dtype=np.float32)
+
+        # Build the graph based on type
+        self._build_graph(graph_type, edge_probability, k, p, adjacency_matrix)
+
+        # Zero out diagonal (no self-loops)
+        np.fill_diagonal(self.adjacency, 0)
+        np.fill_diagonal(self.weights, 0)
+
+    def _build_graph(
+        self,
+        graph_type: str,
+        edge_probability: float,
+        k: int,
+        p: float,
+        adjacency_matrix: Optional[np.ndarray]
+    ):
+        """Build graph based on specified type."""
+        if graph_type == 'random':
+            self._build_random(edge_probability)
+        elif graph_type == 'small_world':
+            self._build_small_world(k, p)
+        elif graph_type == 'fully_connected':
+            self._build_fully_connected()
+        elif graph_type == 'ring':
+            self._build_ring()
+        elif graph_type == 'custom':
+            self._load_custom(adjacency_matrix)
+        else:
+            raise ValueError(f"Unknown graph type: {graph_type}")
+
+    def _build_random(self, edge_probability: float):
+        """
+        Build Erdos-Renyi random graph.
+        Each edge exists with probability edge_probability.
+        """
+        n = self.num_agents
+        for i in range(n):
+            for j in range(i + 1, n):
+                if self.rng.random() < edge_probability:
+                    self.adjacency[i, j] = 1.0
+                    if not self.directed:
+                        self.adjacency[j, i] = 1.0
+
+    def _build_small_world(self, k: int, p: float):
+        """
+        Build Watts-Strogatz small-world graph.
+
+        1. Start with a ring lattice where each node connects to k neighbors on each side
+        2. Rewire each edge with probability p
+        """
+        n = self.num_agents
+
+        # Step 1: Create ring lattice
+        for i in range(n):
+            for j in range(1, k + 1):
+                # Connect to k neighbors on each side
+                right = (i + j) % n
+                left = (i - j) % n
+                self.adjacency[i, right] = 1.0
+                self.adjacency[i, left] = 1.0
+                if not self.directed:
+                    self.adjacency[right, i] = 1.0
+                    self.adjacency[left, i] = 1.0
+
+        # Step 2: Rewire edges with probability p
+        for i in range(n):
+            for j in range(1, k + 1):
+                if self.rng.random() < p:
+                    # Remove current edge
+                    old_target = (i + j) % n
+                    self.adjacency[i, old_target] = 0.0
+                    if not self.directed:
+                        self.adjacency[old_target, i] = 0.0
+
+                    # Find new random target (not self, not already connected)
+                    candidates = [
+                        x for x in range(n)
+                        if x != i and self.adjacency[i, x] == 0
+                    ]
+                    if candidates:
+                        new_target = self.rng.choice(candidates)
+                        self.adjacency[i, new_target] = 1.0
+                        if not self.directed:
+                            self.adjacency[new_target, i] = 1.0
+
+    def _build_fully_connected(self):
+        """Build fully connected graph (complete graph)."""
+        self.adjacency = np.ones((self.num_agents, self.num_agents), dtype=np.float32)
+        np.fill_diagonal(self.adjacency, 0)
+
+    def _build_ring(self):
+        """Build simple ring graph (each node connects to immediate neighbors)."""
+        n = self.num_agents
+        for i in range(n):
+            next_node = (i + 1) % n
+            self.adjacency[i, next_node] = 1.0
+            if not self.directed:
+                self.adjacency[next_node, i] = 1.0
+
+    def _load_custom(self, adjacency_matrix: Optional[np.ndarray]):
+        """Load custom adjacency matrix."""
+        if adjacency_matrix is None:
+            raise ValueError("adjacency_matrix required for 'custom' graph type")
+
+        if adjacency_matrix.shape != (self.num_agents, self.num_agents):
+            raise ValueError(
+                f"adjacency_matrix shape {adjacency_matrix.shape} doesn't match "
+                f"num_agents ({self.num_agents})"
+            )
+
+        self.adjacency = adjacency_matrix.astype(np.float32).copy()
+
+    def get_neighbors(self, agent_idx: int) -> List[int]:
+        """
+        Return list of neighbor indices for an agent.
+
+        Args:
+            agent_idx: Index of the agent
+
+        Returns:
+            List of indices of connected agents
+        """
+        return np.where(self.adjacency[agent_idx] > 0)[0].tolist()
+
+    def get_neighbor_weights(self, agent_idx: int) -> Dict[int, float]:
+        """
+        Return {neighbor_idx: weight} dict for an agent.
+
+        Args:
+            agent_idx: Index of the agent
+
+        Returns:
+            Dictionary mapping neighbor indices to edge weights
+        """
+        neighbors = self.get_neighbors(agent_idx)
+        return {n: float(self.weights[agent_idx, n]) for n in neighbors}
+
+    def get_degree(self, agent_idx: int) -> int:
+        """Return number of connections (degree) for an agent."""
+        return int(np.sum(self.adjacency[agent_idx] > 0))
+
+    def get_all_degrees(self) -> List[int]:
+        """Return list of degrees for all agents."""
+        return [self.get_degree(i) for i in range(self.num_agents)]
+
+    def get_adjacency_matrix(self) -> np.ndarray:
+        """Return copy of adjacency matrix."""
+        return self.adjacency.copy()
+
+    def get_weights_matrix(self) -> np.ndarray:
+        """Return copy of weights matrix."""
+        return self.weights.copy()
+
+    def is_connected(self, agent_i: int, agent_j: int) -> bool:
+        """Check if two agents are connected."""
+        return self.adjacency[agent_i, agent_j] > 0
+
+    def get_edge_weight(self, agent_i: int, agent_j: int) -> float:
+        """Get weight of edge between two agents (0 if not connected)."""
+        if self.adjacency[agent_i, agent_j] > 0:
+            return float(self.weights[agent_i, agent_j])
+        return 0.0
+
+    # ----------------------------------------
+    # Affiliation Theory Hooks (Future Use)
+    # ----------------------------------------
+
+    def update_weight(
+        self,
+        agent_i: int,
+        agent_j: int,
+        interaction_type: str,
+        strengthen_factor: float = 1.1,
+        weaken_factor: float = 0.95,
+        min_weight: float = 0.1,
+        max_weight: float = 2.0
+    ) -> None:
+        """
+        Update edge weight based on interaction type.
+
+        Hook for future affiliation theory implementation:
+        - Cooperative interactions strengthen bonds
+        - Competitive interactions weaken bonds
+
+        Args:
+            agent_i: First agent index
+            agent_j: Second agent index
+            interaction_type: 'cooperative' or 'competitive'
+            strengthen_factor: Multiplicative factor for strengthening
+            weaken_factor: Multiplicative factor for weakening
+            min_weight: Minimum allowed weight
+            max_weight: Maximum allowed weight
+        """
+        if not self.is_connected(agent_i, agent_j):
+            return
+
+        if interaction_type == 'cooperative':
+            self.weights[agent_i, agent_j] *= strengthen_factor
+            if not self.directed:
+                self.weights[agent_j, agent_i] *= strengthen_factor
+        elif interaction_type == 'competitive':
+            self.weights[agent_i, agent_j] *= weaken_factor
+            if not self.directed:
+                self.weights[agent_j, agent_i] *= weaken_factor
+
+        # Clamp weights
+        self.weights = np.clip(self.weights, min_weight, max_weight)
+
+    def reset_weights(self) -> None:
+        """Reset all edge weights to 1.0."""
+        self.weights = np.ones_like(self.weights)
+        np.fill_diagonal(self.weights, 0)
+
+    # ----------------------------------------
+    # Statistics and Visualization
+    # ----------------------------------------
+
+    def get_density(self) -> float:
+        """
+        Calculate graph density (ratio of actual edges to possible edges).
+
+        Returns:
+            Density value between 0 and 1
+        """
+        n = self.num_agents
+        max_edges = n * (n - 1) if self.directed else n * (n - 1) / 2
+        actual_edges = np.sum(self.adjacency > 0)
+        if not self.directed:
+            actual_edges /= 2
+        return actual_edges / max_edges if max_edges > 0 else 0.0
+
+    def get_average_degree(self) -> float:
+        """Calculate average node degree."""
+        degrees = self.get_all_degrees()
+        return np.mean(degrees) if degrees else 0.0
+
+    def __repr__(self) -> str:
+        return (
+            f"SocialGraph(num_agents={self.num_agents}, "
+            f"density={self.get_density():.2f}, "
+            f"avg_degree={self.get_average_degree():.1f})"
+        )
