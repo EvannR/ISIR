@@ -18,6 +18,7 @@ from agent_graph import GraphDQNAgent
 from config import (
     NUM_EPISODES, MAX_STEPS, NUM_AGENTS, NUM_SIMULATIONS_PER_CONDITION,
     DEFAULT_GRAPH_TYPE, EDGE_PROBABILITY, SMALL_WORLD_K, SMALL_WORLD_P, MAX_NEIGHBORS,
+    DYNAMIC_P_BASE, DYNAMIC_P_MAX, DYNAMIC_DELTA, DYNAMIC_DECAY,
     INITIAL_POOL, MAX_POOL_CAPACITY, REGENERATION_RATE, REGENERATION_MODE,
     EXPLOIT_REWARD, EMPATHIC_PENALTY, STEP_COST, WAIT_REWARD, FAILED_CONSUMPTION_PENALTY,
     MEMORY_SIZE, BETA, THRESHOLD, SMOOTHING, SIGMOID_GAIN,
@@ -172,6 +173,10 @@ def run_experiment(
         edge_probability=EDGE_PROBABILITY,
         small_world_k=SMALL_WORLD_K,
         small_world_p=SMALL_WORLD_P,
+        dynamic_p_base=DYNAMIC_P_BASE,
+        dynamic_p_max=DYNAMIC_P_MAX,
+        dynamic_delta=DYNAMIC_DELTA,
+        dynamic_decay=DYNAMIC_DECAY,
         memory_size=MEMORY_SIZE,
         beta=BETA,
         threshold=THRESHOLD,
@@ -367,9 +372,12 @@ if __name__ == '__main__':
 
     print(f"{'='*70}\n")
 
-    # Create results folder
+    # Create results folder (use dedicated subfolder for dynamic graph for comparison notebook)
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    folder_name = os.path.join(script_dir, "graph_simulation_results")
+    folder_name = os.path.join(
+        script_dir,
+        "graph_simulation_results_dynamic" if DEFAULT_GRAPH_TYPE == "dynamic" else "graph_simulation_results",
+    )
     os.makedirs(folder_name, exist_ok=True)
 
     overall_start_time = time.time()

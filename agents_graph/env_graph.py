@@ -53,6 +53,11 @@ class EmpathicGraphEnv(gym.Env):
         small_world_k: int = 2,
         small_world_p: float = 0.3,
         custom_adjacency: Optional[np.ndarray] = None,
+        # Dynamic graph (only when graph_type == 'dynamic')
+        dynamic_p_base: float = 0.05,
+        dynamic_p_max: float = 0.95,
+        dynamic_delta: float = 0.02,
+        dynamic_decay: float = 0.9,
 
         # Agent settings
         memory_size: int = 10,
@@ -86,11 +91,12 @@ class EmpathicGraphEnv(gym.Env):
             regeneration_rate: Resource regeneration rate
             regeneration_mode: 'constant', 'proportional', or 'none'
 
-            graph_type: 'random', 'small_world', 'fully_connected', 'ring', 'custom'
+            graph_type: 'random', 'small_world', 'fully_connected', 'ring', 'custom', 'dynamic'
             edge_probability: Edge probability for random graph
             small_world_k: Neighbors per side for small-world
             small_world_p: Rewiring probability for small-world
             custom_adjacency: Custom adjacency matrix
+            dynamic_p_base, dynamic_p_max, dynamic_delta, dynamic_decay: For 'dynamic' graph
 
             memory_size: Agent meal history size
             beta: Satisfaction calculation parameter
@@ -206,7 +212,11 @@ class EmpathicGraphEnv(gym.Env):
             k=self._small_world_k,
             p=self._small_world_p,
             adjacency_matrix=self._custom_adjacency,
-            seed=seed
+            seed=seed,
+            p_base=getattr(self, '_dynamic_p_base', 0.05),
+            p_max=getattr(self, '_dynamic_p_max', 0.95),
+            delta=getattr(self, '_dynamic_delta', 0.02),
+            decay=getattr(self, '_dynamic_decay', 0.9),
         )
 
         # Reset all agents (meal history, satisfaction, etc.)
@@ -310,6 +320,10 @@ class EmpathicGraphEnv(gym.Env):
 
         # Regenerate resources
         self.pool.regenerate()
+
+        # Dynamic graph: evolve connections after this step
+        if self._graph_type == 'dynamic' and hasattr(self.graph, 'step_dynamics'):
+            self.graph.step_dynamics(self.np_random)
 
         # Check termination
         terminated = False

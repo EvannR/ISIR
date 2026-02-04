@@ -14,11 +14,17 @@ NUM_SIMULATIONS_PER_CONDITION = 3
 # ----------------------------------------
 # Graph Settings
 # ----------------------------------------
-DEFAULT_GRAPH_TYPE = 'random'
+DEFAULT_GRAPH_TYPE = 'dynamic'  # 'random', 'dynamic', 'small_world', 'fully_connected', 'ring'
 EDGE_PROBABILITY = 0.4          # For random graph
 SMALL_WORLD_K = 2               # Initial neighbors per side (Watts-Strogatz)
 SMALL_WORLD_P = 0.3             # Rewiring probability (Watts-Strogatz)
 MAX_NEIGHBORS = 8               # Maximum neighbors for observation padding
+
+# Dynamic graph (emerging connections; edges can appear and disappear)
+DYNAMIC_P_BASE = 0.05           # Base probability to connect each step
+DYNAMIC_P_MAX = 0.95            # Max connection probability (reinforcement cap)
+DYNAMIC_DELTA = 0.02            # Increase in p when edge is present this step
+DYNAMIC_DECAY = 0.9             # Decay toward p_base when edge absent (p = decay*p + (1-decay)*p_base)
 
 # ----------------------------------------
 # Resource Pool Settings

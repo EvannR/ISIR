@@ -30,7 +30,12 @@ class SocialGraph:
         p: float = 0.1,                      # Small-world: rewiring probability
         adjacency_matrix: Optional[np.ndarray] = None,
         directed: bool = False,
-        seed: Optional[int] = None
+        seed: Optional[int] = None,
+        # Dynamic graph parameters (only used when graph_type == 'dynamic')
+        p_base: float = 0.05,
+        p_max: float = 0.95,
+        delta: float = 0.02,
+        decay: float = 0.9,
     ):
         """
         Initialize the social graph.
@@ -38,13 +43,17 @@ class SocialGraph:
         Args:
             num_agents: Number of agents (nodes)
             graph_type: Type of graph - 'random', 'small_world', 'fully_connected',
-                       'ring', or 'custom'
+                       'ring', 'custom', or 'dynamic'
             edge_probability: Edge probability for random graph (Erdos-Renyi)
             k: Number of neighbors on each side for small-world (Watts-Strogatz)
             p: Rewiring probability for small-world
             adjacency_matrix: Custom adjacency matrix (for 'custom' type)
             directed: If True, edges are directed; if False, symmetric
             seed: Random seed for reproducibility
+            p_base: (dynamic) Base probability to connect each step
+            p_max: (dynamic) Max connection probability after reinforcement
+            delta: (dynamic) Increase in p when edge is present
+            decay: (dynamic) Decay toward p_base when edge absent
         """
         self.num_agents = num_agents
         self.directed = directed
@@ -55,7 +64,10 @@ class SocialGraph:
         self.weights = np.ones((num_agents, num_agents), dtype=np.float32)
 
         # Build the graph based on type
-        self._build_graph(graph_type, edge_probability, k, p, adjacency_matrix)
+        self._build_graph(
+            graph_type, edge_probability, k, p, adjacency_matrix,
+            p_base=p_base, p_max=p_max, delta=delta, decay=decay,
+        )
 
         # Zero out diagonal (no self-loops)
         np.fill_diagonal(self.adjacency, 0)
@@ -67,7 +79,11 @@ class SocialGraph:
         edge_probability: float,
         k: int,
         p: float,
-        adjacency_matrix: Optional[np.ndarray]
+        adjacency_matrix: Optional[np.ndarray],
+        p_base: float = 0.05,
+        p_max: float = 0.95,
+        delta: float = 0.02,
+        decay: float = 0.9,
     ):
         """Build graph based on specified type."""
         if graph_type == 'random':
@@ -80,6 +96,8 @@ class SocialGraph:
             self._build_ring()
         elif graph_type == 'custom':
             self._load_custom(adjacency_matrix)
+        elif graph_type == 'dynamic':
+            self._build_dynamic(p_base, p_max, delta, decay)
         else:
             raise ValueError(f"Unknown graph type: {graph_type}")
 
@@ -164,6 +182,69 @@ class SocialGraph:
             )
 
         self.adjacency = adjacency_matrix.astype(np.float32).copy()
+
+    def _build_dynamic(
+        self,
+        p_base: float,
+        p_max: float,
+        delta: float,
+        decay: float,
+    ) -> None:
+        """
+        Build dynamic graph: start with no edges.
+        Per-pair connection probability p_ij is stored and updated each step via step_dynamics().
+        """
+        n = self.num_agents
+        # Adjacency stays zeros (no edges initially)
+        self._connection_prob = np.full((n, n), p_base, dtype=np.float32)
+        np.fill_diagonal(self._connection_prob, 0)
+        self._dynamic_p_base = p_base
+        self._dynamic_p_max = p_max
+        self._dynamic_delta = delta
+        self._dynamic_decay = decay
+
+    def step_dynamics(self, rng: Optional[np.random.Generator] = None) -> None:
+        """
+        Update graph for dynamic type: each pair (i,j) connects with probability p_ij.
+        If connected this step: p_ij increases (reinforcement). If not: p_ij decays toward p_base.
+        Edges can disappear; past connections make future connection more likely.
+        """
+        if not hasattr(self, '_connection_prob'):
+            return
+        rng = rng if rng is not None else self.rng
+        n = self.num_agents
+        p_base = self._dynamic_p_base
+        p_max = self._dynamic_p_max
+        delta = self._dynamic_delta
+        decay = self._dynamic_decay
+
+        # New adjacency: for each pair, connect with probability p_ij
+        new_adj = np.zeros((n, n), dtype=np.float32)
+        for i in range(n):
+            for j in range(i + 1, n):
+                if rng.random() < self._connection_prob[i, j]:
+                    new_adj[i, j] = 1.0
+                    new_adj[j, i] = 1.0
+
+        # Update connection probabilities
+        for i in range(n):
+            for j in range(i + 1, n):
+                if new_adj[i, j] > 0:
+                    # Reinforcement
+                    self._connection_prob[i, j] = min(
+                        p_max,
+                        self._connection_prob[i, j] + delta,
+                    )
+                    self._connection_prob[j, i] = self._connection_prob[i, j]
+                else:
+                    # Decay toward p_base
+                    self._connection_prob[i, j] = (
+                        decay * self._connection_prob[i, j] + (1.0 - decay) * p_base
+                    )
+                    self._connection_prob[j, i] = self._connection_prob[i, j]
+
+        self.adjacency = new_adj
+        np.fill_diagonal(self.adjacency, 0)
 
     def get_neighbors(self, agent_idx: int) -> List[int]:
         """
