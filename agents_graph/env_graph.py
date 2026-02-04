@@ -294,14 +294,21 @@ class EmpathicGraphEnv(gym.Env):
                         self_agent = self.agents[agent_idx]
                         neighbor_agents_unwrapped = neighbor_agents
 
-                    # Calculate empathic reward
-                    bonus = self._reward_calc.consumption_bonus(
-                        self_agent=self_agent,
-                        nearby_agents=neighbor_agents_unwrapped,
-                    )
+                    # Calculate reward with explicit empathic penalty
+                    bonus = self.exploit_reward
+
+                    # Apply empathic penalty: if agent is more satisfied
+                    # than its neighbors, penalize consumption
+                    if neighbor_agents_unwrapped:
+                        self_sat = self_agent.get_satisfaction()
+                        neighbor_sats = [a.get_satisfaction()
+                                         for a in neighbor_agents_unwrapped]
+                        avg_neighbor_sat = np.mean(neighbor_sats)
+                        if self_sat > avg_neighbor_sat:
+                            bonus += self.empathy_alpha * self.empathic_penalty
+                            empathic_penalty_events[agent_idx] = True
 
                     consumption_bonus[agent_idx] = bonus
-                    empathic_penalty_events[agent_idx] = bonus < 0.0
 
                     rewards[agent_idx] = self.step_cost + bonus
 

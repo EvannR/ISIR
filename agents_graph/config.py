@@ -21,7 +21,7 @@ SMALL_WORLD_P = 0.3             # Rewiring probability (Watts-Strogatz)
 MAX_NEIGHBORS = 8               # Maximum neighbors for observation padding
 
 # Dynamic graph (emerging connections; edges can appear and disappear)
-DYNAMIC_P_BASE = 0.05           # Base probability to connect each step
+DYNAMIC_P_BASE = 0.10           # Base probability to connect each step
 DYNAMIC_P_MAX = 0.95            # Max connection probability (reinforcement cap)
 DYNAMIC_DELTA = 0.02            # Increase in p when edge is present this step
 DYNAMIC_DECAY = 0.9             # Decay toward p_base when edge absent (p = decay*p + (1-decay)*p_base)
@@ -31,14 +31,14 @@ DYNAMIC_DECAY = 0.9             # Decay toward p_base when edge absent (p = deca
 # ----------------------------------------
 INITIAL_POOL = 50
 MAX_POOL_CAPACITY = 100
-REGENERATION_RATE = 1.0
+REGENERATION_RATE = 0.2
 REGENERATION_MODE = 'constant'  # 'constant', 'proportional', 'none'
 
 # ----------------------------------------
 # Reward Settings
 # ----------------------------------------
 EXPLOIT_REWARD = 1.0
-EMPATHIC_PENALTY = -1.0
+EMPATHIC_PENALTY = -3.0
 STEP_COST = -0.01
 WAIT_REWARD = 0.0
 FAILED_CONSUMPTION_PENALTY = -0.1
