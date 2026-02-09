@@ -22,10 +22,10 @@ if str(_2D_PATH) not in sys.path:
     sys.path.insert(0, str(_2D_PATH))
 
 # Import from 2D module (no modifications to original code)
-from agent_2d import Agent, EmpathicRewardCalculator, ReplayBuffer, Experience
+from agent_2d import Agent, ReplayBuffer, Experience
 
 # Re-export for convenience
-__all__ = ['Agent', 'EmpathicRewardCalculator', 'ReplayBuffer', 'Experience', 'GraphDQNAgent']
+__all__ = ['Agent', 'ReplayBuffer', 'Experience', 'GraphDQNAgent']
 
 
 class GraphDQNNetwork(nn.Module):
@@ -80,7 +80,7 @@ class GraphDQNAgent:
     def __init__(
         self,
         agent_id: int,
-        observation_dim: int,
+        observation_dim: int = 4,
         action_size: int = 2,
         learning_rate: float = 0.002,
         gamma: float = 0.99,

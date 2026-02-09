@@ -7,6 +7,8 @@ Supports static topology with weight hooks for future affiliation theory.
 """
 
 import numpy as np
+import networkx as nx
+import matplotlib.pyplot as plt
 from typing import List, Dict, Optional
 
 
@@ -96,6 +98,9 @@ class SocialGraph:
             self._build_ring()
         elif graph_type == 'custom':
             self._load_custom(adjacency_matrix)
+        elif graph_type == 'directed_random':
+            self.directed = True
+            self._build_directed_random(edge_probability)
         elif graph_type == 'dynamic':
             self._build_dynamic(p_base, p_max, delta, decay)
         else:
@@ -155,6 +160,28 @@ class SocialGraph:
                         self.adjacency[i, new_target] = 1.0
                         if not self.directed:
                             self.adjacency[new_target, i] = 1.0
+
+    def _build_directed_random(self, edge_probability: float):
+        """
+        Build random directed graph (Erdos-Renyi style, asymmetric).
+
+        Each ordered pair (i,j) has independent probability of edge i->j.
+        i->j means agent i perceives agent j's emotion.
+        Guarantees every agent has at least one outgoing edge.
+        """
+        n = self.num_agents
+        for i in range(n):
+            for j in range(n):
+                if i != j and self.rng.random() < edge_probability:
+                    self.adjacency[i, j] = 1.0
+
+        # Guarantee: every agent has at least one outgoing edge
+        for i in range(n):
+            if np.sum(self.adjacency[i]) == 0:
+                # Add one random outgoing edge
+                candidates = [j for j in range(n) if j != i]
+                target = self.rng.choice(candidates)
+                self.adjacency[i, target] = 1.0
 
     def _build_fully_connected(self):
         """Build fully connected graph (complete graph)."""
@@ -369,6 +396,46 @@ class SocialGraph:
         """Calculate average node degree."""
         degrees = self.get_all_degrees()
         return np.mean(degrees) if degrees else 0.0
+
+    def draw_graph(self, ax=None, title=None):
+        """
+        Visualize the graph using networkx + matplotlib.
+
+        For directed graphs, arrows show perception direction:
+        A -> B means A perceives B's emotion.
+
+        Args:
+            ax: matplotlib Axes to draw on (creates new figure if None)
+            title: optional title for the plot
+
+        Returns:
+            matplotlib Figure
+        """
+        if ax is None:
+            fig, ax = plt.subplots(1, 1, figsize=(8, 6))
+        else:
+            fig = ax.get_figure()
+
+        G = nx.DiGraph() if self.directed else nx.Graph()
+        G.add_nodes_from(range(self.num_agents))
+
+        for i in range(self.num_agents):
+            for j in range(self.num_agents):
+                if self.adjacency[i, j] > 0:
+                    G.add_edge(i, j)
+
+        pos = nx.circular_layout(G)
+        nx.draw_networkx_nodes(G, pos, ax=ax, node_size=600,
+                               node_color='lightblue', edgecolors='black')
+        nx.draw_networkx_labels(G, pos, ax=ax, font_size=12, font_weight='bold')
+        nx.draw_networkx_edges(G, pos, ax=ax, arrows=self.directed,
+                               arrowsize=20, connectionstyle='arc3,rad=0.1',
+                               edge_color='gray', width=1.5)
+
+        if title:
+            ax.set_title(title, fontsize=14)
+        ax.set_axis_off()
+        return fig
 
     def __repr__(self) -> str:
         return (

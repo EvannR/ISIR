@@ -2,10 +2,13 @@
 Graph-Based Empathic Environment
 
 Multi-agent environment where:
-- Agents are fixed nodes in a social graph (no movement)
-- Graph edges determine who can see whose emotions
+- Agents are fixed nodes in a static directed social graph
+- Graph edges determine who can perceive whose emotions
 - Agents share a centralized resource pool
 - Actions: wait (0) or consume (1)
+- Reward follows game theoretic formula:
+  consuming agents get (1-alpha)*personal + alpha*empathic
+  waiting/failed agents get 0.0
 """
 
 import numpy as np
@@ -13,15 +16,11 @@ import gymnasium as gym
 from typing import List, Tuple, Dict, Optional, Any
 
 try:
-    # When imported as part of package
     from .social_graph import SocialGraph
     from .resource_pool import ResourcePool
-    from .agent_graph import EmpathicRewardCalculator
 except ImportError:
-    # When run directly or imported without package context
     from social_graph import SocialGraph
     from resource_pool import ResourcePool
-    from agent_graph import EmpathicRewardCalculator
 
 
 class EmpathicGraphEnv(gym.Env):
@@ -29,17 +28,16 @@ class EmpathicGraphEnv(gym.Env):
     Multi-agent graph-based environment for empathic resource sharing.
 
     Key features:
-    - Agents are fixed nodes in a social graph
-    - Graph edges define emotional visibility (who sees whose emotions)
-    - Shared resource pool instead of spatial resources
+    - Agents are fixed nodes in a static directed social graph
+    - Graph edges define emotional visibility (A->B means A perceives B's emotion)
+    - Shared resource pool
     - Binary actions: wait (0) or consume (1)
-    - Empathic reward based on neighbors' emotions when consuming
+    - Reward: consuming agents get (1-alpha)*personal + alpha*mean_neighbor_emotion
     """
 
     def __init__(
         self,
-        num_agents: int = 5,
-        max_neighbors: int = 8,
+        num_agents: int = 6,
 
         # Resource pool settings
         initial_pool: int = 50,
@@ -48,16 +46,11 @@ class EmpathicGraphEnv(gym.Env):
         regeneration_mode: str = 'constant',
 
         # Graph settings
-        graph_type: str = 'random',
+        graph_type: str = 'directed_random',
         edge_probability: float = 0.4,
         small_world_k: int = 2,
         small_world_p: float = 0.3,
         custom_adjacency: Optional[np.ndarray] = None,
-        # Dynamic graph (only when graph_type == 'dynamic')
-        dynamic_p_base: float = 0.05,
-        dynamic_p_max: float = 0.95,
-        dynamic_delta: float = 0.02,
-        dynamic_decay: float = 0.9,
 
         # Agent settings
         memory_size: int = 10,
@@ -67,15 +60,14 @@ class EmpathicGraphEnv(gym.Env):
         sigmoid_gain: float = 10.0,
 
         # Reward settings
-        exploit_reward: float = 1.0,
-        empathic_penalty: float = -1.0,
-        empathy_alpha: float = 0.5,
-        step_cost: float = -0.01,
-        wait_reward: float = 0.0,
-        failed_consumption_penalty: float = -0.1,
+        alpha: float = 0.5,
+
+        # Environment type
+        env_type: str = 'deterministic',
 
         # Episode settings
         max_steps: int = 200,
+        static_graph_across_episodes: bool = False,
 
         render_mode: Optional[str] = None
     ):
@@ -84,42 +76,42 @@ class EmpathicGraphEnv(gym.Env):
 
         Args:
             num_agents: Number of agents in the environment
-            max_neighbors: Maximum neighbors for observation padding
 
             initial_pool: Starting resource amount
             max_pool_capacity: Maximum pool capacity
             regeneration_rate: Resource regeneration rate
             regeneration_mode: 'constant', 'proportional', or 'none'
 
-            graph_type: 'random', 'small_world', 'fully_connected', 'ring', 'custom', 'dynamic'
-            edge_probability: Edge probability for random graph
+            graph_type: 'directed_random', 'random', 'small_world',
+                       'fully_connected', 'ring', 'custom'
+            edge_probability: Edge probability for random graphs
             small_world_k: Neighbors per side for small-world
             small_world_p: Rewiring probability for small-world
             custom_adjacency: Custom adjacency matrix
-            dynamic_p_base, dynamic_p_max, dynamic_delta, dynamic_decay: For 'dynamic' graph
 
             memory_size: Agent meal history size
-            beta: Satisfaction calculation parameter
+            beta: Weight of last meal vs history in personal satisfaction
             threshold: Emotion threshold
-            smoothing: Emotion smoothing type
+            smoothing: Emotion smoothing type ('linear' or 'sigmoid')
             sigmoid_gain: Sigmoid gain parameter
 
-            exploit_reward: Base reward for consumption
-            empathic_penalty: Penalty parameter for empathic calculation
-            empathy_alpha: Weight on others' emotions (0=selfish, 1=fully empathic)
-            step_cost: Cost per step
-            wait_reward: Reward for waiting
-            failed_consumption_penalty: Penalty for failed consumption attempt
+            alpha: Empathy weight (0=selfish, 1=fully empathic)
 
             max_steps: Maximum steps per episode
+            static_graph_across_episodes: If True, graph is created once and
+                reused across all episodes. If False (default), a new graph
+                is generated each reset().
             render_mode: Rendering mode (optional)
         """
         super().__init__()
 
         self.num_agents = num_agents
-        self.max_neighbors = max_neighbors
         self.max_steps = max_steps
         self.render_mode = render_mode
+        self.alpha = alpha
+        self._beta = beta
+        self.env_type = env_type
+        self._static_graph_across_episodes = static_graph_across_episodes
 
         # Store settings for reset
         self._graph_type = graph_type
@@ -135,38 +127,20 @@ class EmpathicGraphEnv(gym.Env):
 
         # Agent parameters
         self._memory_size = memory_size
-        self._beta = beta
         self._threshold = threshold
         self._smoothing = smoothing
         self._sigmoid_gain = sigmoid_gain
 
-        # Reward settings
-        self.exploit_reward = exploit_reward
-        self.empathic_penalty = empathic_penalty
-        self.empathy_alpha = empathy_alpha
-        self.step_cost = step_cost
-        self.wait_reward = wait_reward
-        self.failed_consumption_penalty = failed_consumption_penalty
-
-        # Empathic reward calculator (from 2D module)
-        self._reward_calc = EmpathicRewardCalculator(
-            exploit_reward=self.exploit_reward,
-            empathic_penalty=self.empathic_penalty,
-            empathy_alpha=self.empathy_alpha,
-        )
-
         # Initialize components (will be properly set in reset())
         self.graph: Optional[SocialGraph] = None
         self.pool: Optional[ResourcePool] = None
-        self.agents: List = []  # Will be set externally
+        self.agents: List = []
         self.steps_taken = 0
 
-        # Random number generator
         self.np_random = np.random.default_rng()
 
-        # Observation space: flat vector
-        # [own_satisfaction, own_emotion, pool_level, neighbor_emotions_and_weights...]
-        obs_dim = 3 + max_neighbors * 2
+        # Observation space: [own_satisfaction, own_emotion, pool_level, mean_neighbor_emotion]
+        obs_dim = 4
         self.observation_space = gym.spaces.Box(
             low=-1.0,
             high=2.0,
@@ -185,10 +159,6 @@ class EmpathicGraphEnv(gym.Env):
         """
         Reset environment for new episode.
 
-        Args:
-            seed: Random seed
-            options: Additional options (unused)
-
         Returns:
             Tuple of (observations, info)
         """
@@ -204,30 +174,25 @@ class EmpathicGraphEnv(gym.Env):
             seed=seed
         )
 
-        # Initialize/reset social graph
-        self.graph = SocialGraph(
-            num_agents=self.num_agents,
-            graph_type=self._graph_type,
-            edge_probability=self._edge_probability,
-            k=self._small_world_k,
-            p=self._small_world_p,
-            adjacency_matrix=self._custom_adjacency,
-            seed=seed,
-            p_base=getattr(self, '_dynamic_p_base', 0.05),
-            p_max=getattr(self, '_dynamic_p_max', 0.95),
-            delta=getattr(self, '_dynamic_delta', 0.02),
-            decay=getattr(self, '_dynamic_decay', 0.9),
-        )
+        # Initialize social graph (optionally reuse across episodes)
+        if self.graph is None or not self._static_graph_across_episodes:
+            self.graph = SocialGraph(
+                num_agents=self.num_agents,
+                graph_type=self._graph_type,
+                edge_probability=self._edge_probability,
+                k=self._small_world_k,
+                p=self._small_world_p,
+                adjacency_matrix=self._custom_adjacency,
+                seed=seed,
+            )
 
-        # Reset all agents (meal history, satisfaction, etc.)
+        # Reset all agents
         for agent in self.agents:
             if hasattr(agent, 'agent'):
-                # GraphDQNAgent wraps Agent
                 agent.agent.reset()
             elif hasattr(agent, 'reset'):
                 agent.reset()
 
-        # Generate initial observations
         observations = [self._get_observation(i) for i in range(self.num_agents)]
 
         info = {
@@ -246,6 +211,11 @@ class EmpathicGraphEnv(gym.Env):
         """
         Execute one step for all agents.
 
+        Reward logic:
+        - Consuming agents (successful): (1-alpha)*personal + alpha*empathic
+        - Waiting agents: 0.0
+        - Failed consumption (pool empty): 0.0
+
         Args:
             actions: List of actions for each agent (0=wait, 1=consume)
 
@@ -256,101 +226,69 @@ class EmpathicGraphEnv(gym.Env):
 
         rewards = [0.0] * self.num_agents
         consumed_flags = [False] * self.num_agents
-        consumption_bonus = [0.0] * self.num_agents
-        empathic_penalty_events = [False] * self.num_agents
+        personal_rewards = [0.0] * self.num_agents
+        empathic_rewards = [0.0] * self.num_agents
 
         # Find agents who want to consume
         consumers = [i for i, action in enumerate(actions) if action == 1]
 
-        # Handle consumption
-        if consumers:
-            # Try to serve all consumers
-            num_served, served_indices = self.pool.consume_multiple(
-                num_consumers=len(consumers),
-                amount_per_consumer=1
-            )
+        # Handle consumption (stochastic or deterministic)
+        consumed_count = 0
+        for agent_idx in consumers:
+            if self.pool.current < 1:
+                # Pool empty, consumption fails
+                self._record_meal(agent_idx, success=False, reward=0)
+                continue
 
-            # Map served_indices back to agent indices
-            served_agents = [consumers[i] for i in served_indices]
+            if self.env_type == 'stochastic':
+                # Success probability depends on resource level (like game theoretic env)
+                prob = self.pool.current / self._initial_pool
+                success = self.np_random.random() < prob
+            else:
+                success = True
 
-            # Process each consumer
-            for consumer_idx, agent_idx in enumerate(consumers):
-                if consumer_idx in served_indices:
-                    # Successful consumption
-                    consumed_flags[agent_idx] = True
+            if success:
+                self.pool.current -= 1
+                consumed_count += 1
+                consumed_flags[agent_idx] = True
 
-                    # Get graph neighbors for empathic reward
-                    neighbor_indices = self.graph.get_neighbors(agent_idx)
-                    neighbor_agents = [self.agents[j] for j in neighbor_indices]
+                # Calculate game theoretic reward
+                personal = self._get_personal_satisfaction(agent_idx)
+                empathic = self._get_mean_neighbor_emotion(agent_idx)
 
-                    # Get the actual Agent object (handle GraphDQNAgent wrapper)
-                    if hasattr(self.agents[agent_idx], 'agent'):
-                        self_agent = self.agents[agent_idx].agent
-                        neighbor_agents_unwrapped = [
-                            a.agent if hasattr(a, 'agent') else a
-                            for a in neighbor_agents
-                        ]
-                    else:
-                        self_agent = self.agents[agent_idx]
-                        neighbor_agents_unwrapped = neighbor_agents
+                personal_rewards[agent_idx] = personal
+                empathic_rewards[agent_idx] = empathic
+                rewards[agent_idx] = (1 - self.alpha) * personal + self.alpha * empathic
 
-                    # Calculate reward with explicit empathic penalty
-                    bonus = self.exploit_reward
+                self._record_meal(agent_idx, success=True, reward=rewards[agent_idx])
+            else:
+                # Stochastic failure
+                self._record_meal(agent_idx, success=False, reward=0)
 
-                    # Apply empathic penalty: if agent is more satisfied
-                    # than its neighbors, penalize consumption
-                    if neighbor_agents_unwrapped:
-                        self_sat = self_agent.get_satisfaction()
-                        neighbor_sats = [a.get_satisfaction()
-                                         for a in neighbor_agents_unwrapped]
-                        avg_neighbor_sat = np.mean(neighbor_sats)
-                        if self_sat > avg_neighbor_sat:
-                            bonus += self.empathy_alpha * self.empathic_penalty
-                            empathic_penalty_events[agent_idx] = True
-
-                    consumption_bonus[agent_idx] = bonus
-
-                    rewards[agent_idx] = self.step_cost + bonus
-
-                    # Record successful meal
-                    self._record_meal(agent_idx, success=True, reward=bonus)
-                else:
-                    # Failed consumption (pool empty)
-                    rewards[agent_idx] = self.step_cost + self.failed_consumption_penalty
-                    self._record_meal(agent_idx, success=False, reward=0)
-
-        # Process agents who waited
+        # Record non-consumption for waiting agents
         for i, action in enumerate(actions):
-            if action == 0:  # Wait
-                rewards[i] = self.step_cost + self.wait_reward
+            if action == 0:
                 self._record_meal(i, success=False, reward=0)
 
-        # Regenerate resources
-        self.pool.regenerate()
+        # Multiplicative resource update (like game theoretic env)
+        self.pool.current = max(0.0, self.pool.current * self._regeneration_rate)
 
-        # Dynamic graph: evolve connections after this step
-        if self._graph_type == 'dynamic' and hasattr(self.graph, 'step_dynamics'):
-            self.graph.step_dynamics(self.np_random)
-
-        # Check termination
-        terminated = False
-        if self._regeneration_mode == 'none' and self.pool.is_empty():
-            terminated = True
+        # Check termination — episode ends when pool is depleted
+        terminated = self.pool.current <= 0
 
         truncated = self.steps_taken >= self.max_steps
 
-        # Get new observations
         observations = [self._get_observation(i) for i in range(self.num_agents)]
 
-        # Build info dict
         info = {
             'steps': self.steps_taken,
             'pool_level': self.pool.get_level(),
             'pool_normalized': self.pool.get_normalized_level(),
             'consumed': consumed_flags,
-            'consumption_bonus': consumption_bonus,
-            'empathic_penalty_events': empathic_penalty_events,
+            'personal_rewards': personal_rewards,
+            'empathic_rewards': empathic_rewards,
             'satisfactions': [self._get_satisfaction(i) for i in range(self.num_agents)],
+            'emotions': [self._get_emotion(i) for i in range(self.num_agents)],
             'total_consumption': sum(consumed_flags),
         }
 
@@ -360,36 +298,49 @@ class EmpathicGraphEnv(gym.Env):
         """
         Build observation vector for an agent.
 
-        Structure:
-        [own_satisfaction, own_emotion, pool_level,
-         neighbor_0_emotion, neighbor_0_weight,
-         neighbor_1_emotion, neighbor_1_weight, ...]
+        Structure: [own_satisfaction, own_emotion, pool_level, mean_neighbor_emotion]
 
         Args:
             agent_idx: Index of the agent
 
         Returns:
-            Flat observation array
+            Flat observation array of dim 4
         """
-        obs_dim = 3 + self.max_neighbors * 2
-        obs = np.zeros(obs_dim, dtype=np.float32)
+        obs = np.zeros(4, dtype=np.float32)
 
-        # Own state
         obs[0] = self._get_satisfaction(agent_idx)
         obs[1] = self._get_emotion(agent_idx)
         obs[2] = self.pool.get_normalized_level()
-
-        # Neighbor emotions and weights
-        neighbors = self.graph.get_neighbors(agent_idx)
-        weights = self.graph.get_neighbor_weights(agent_idx)
-
-        for i, neighbor_idx in enumerate(neighbors[:self.max_neighbors]):
-            obs[3 + i * 2] = self._get_emotion(neighbor_idx)
-            obs[3 + i * 2 + 1] = weights[neighbor_idx]
-
-        # Remaining slots stay as zeros (padding)
+        obs[3] = self._get_mean_neighbor_emotion(agent_idx)
 
         return obs
+
+    def _get_personal_satisfaction(self, agent_idx: int) -> float:
+        """
+        Calculate personal satisfaction (game theoretic formula).
+        personal = beta * last_meal + (1-beta) * avg_history
+        """
+        agent = self.agents[agent_idx]
+        if hasattr(agent, 'agent'):
+            agent = agent.agent
+
+        if hasattr(agent, 'meal_history') and agent.meal_history:
+            last = 1.0 if agent.meal_history[-1] > 0 else 0.0
+            hist = sum(agent.meal_history) / len(agent.meal_history)
+        else:
+            last, hist = 0.0, 0.0
+
+        return self._beta * last + (1 - self._beta) * hist
+
+    def _get_mean_neighbor_emotion(self, agent_idx: int) -> float:
+        """
+        Get mean emotion of agents this agent is connected to (outgoing edges).
+        """
+        neighbors = self.graph.get_neighbors(agent_idx)
+        if not neighbors:
+            return 0.0
+        emotions = [self._get_emotion(j) for j in neighbors]
+        return float(np.mean(emotions))
 
     def _get_satisfaction(self, agent_idx: int) -> float:
         """Get satisfaction for an agent (handle wrapper)."""
@@ -418,12 +369,7 @@ class EmpathicGraphEnv(gym.Env):
             agent.agent.record_meal(success, reward)
 
     def set_agents(self, agents: List) -> None:
-        """
-        Link external agent objects to environment.
-
-        Args:
-            agents: List of agent objects (GraphDQNAgent or similar)
-        """
+        """Link external agent objects to environment."""
         if len(agents) != self.num_agents:
             raise ValueError(
                 f"Expected {self.num_agents} agents, got {len(agents)}"
@@ -439,9 +385,7 @@ class EmpathicGraphEnv(gym.Env):
         return self.pool
 
     def close(self) -> None:
-        """Close the environment."""
         pass
 
     def render(self) -> None:
-        """Render the environment (not implemented)."""
         pass
