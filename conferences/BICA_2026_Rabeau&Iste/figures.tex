@@ -1,0 +1,76 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[margin=2cm]{geometry}
+\usepackage{caption}
+
+\title{Figures --- Model-free multi-agent reinforcement learning
+simulation of the influence of empathy on the sustainability of
+agents' consumption in a common-pool resource dilemma}
+\author{Iste, Rabeau, Khamassi, Freire}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Study 1: Factorial Manipulation of Observation and Empathic Reward}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/results/matrix_steps_trajectory}
+  \caption{Episode length as a function of empathic properties across episodes.
+  \textit{Cog}: ability to perceive others' emotions; \textit{Motiv}: empathic motivation.}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{figures/results/full star matrix depletion.png}
+  \caption{Episode length as a function of empathic properties, aggregated across episodes.}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/results/matrix_gini_trajectory.pdf}
+  \caption{Fairness (Gini coefficient of resource access) as a function of empathic
+  properties across episodes.}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{figures/results/full star matrix gini.png}
+  \caption{Fairness (Gini coefficient of resource access) as a function of empathic
+  properties, aggregated across episodes.}
+\end{figure}
+
+\clearpage
+\section*{Study 2: Graded Empathic Weight}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/results/alpha_steps_trajectory}
+  \caption{Episode length as a function of the degree of altruism ($\alpha_e$) across episodes.}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{figures/results/full star alpha depletion.png}
+  \caption{Episode length as a function of the degree of altruism ($\alpha_e$),
+  aggregated across episodes.}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/results/alpha_gini_trajectory}
+  \caption{Fairness (Gini coefficient of resource access) as a function of the degree
+  of altruism ($\alpha_e$) across episodes.}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{figures/results/full star alpha Gini.png}
+  \caption{Fairness (Gini coefficient of resource access) as a function of the degree
+  of altruism ($\alpha_e$), aggregated across episodes.}
+\end{figure}
+
+\end{document}

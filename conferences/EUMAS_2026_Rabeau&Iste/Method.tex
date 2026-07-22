@@ -1,0 +1,154 @@
+\section{Method}
+\subsection{Simulation Framework}
+\subsubsection{Environment}
+ 
+We model the problem as a partially observable stochastic game defined as a tuple
+$\langle N, S, A, T, R, \Omega, O \rangle$.
+$N = 6$ agents interact over a shared depletable common-pool resource.
+The state space $S$ is defined by the current resource level $r_t \geq 0$,
+and each agent $i \in \{1, \ldots, N\}$ selects an action
+$a_i^t \in A = \{0, 1\}$ (0: abstain, 1: exploit) at each timestep $t$,
+yielding joint action $\mathbf{a}_t = (a_1^t, \ldots, a_N^t)$.
+ 
+Agents have partial observability: each agent may receive, as observation
+$o_i \in \Omega$, an affective signal broadcast by other agents
+(Section~\ref{sec:emotions}), or no observation at all.
+ 
+\subsection{Resource Dynamics}
+ 
+For each agent $i$ with $a_i^t = 1$,
+success occurs with probability proportional to resource availability:
+\begin{equation}
+    P(\text{success}_i \mid r_t) = \frac{r_t}{R_0}
+\end{equation}
+where $R_0$ is the initial resource level. 
+
+Let $C_t$ denote the total number of successful exploitations at time $t$. The resource evolves as follows:
+\begin{equation}
+    r_{t+1} =  r_t - C_t
+\end{equation}
+This formulation induces a natural commons dilemma: individual exploitation pressure
+degrades collective future access.
+ 
+\subsection{Affective Signaling}
+\label{sec:emotions}
+
+
+We introduce a lightweight inter-agent communication mechanism based on
+scalar \emph{affective signals}, grounded in appraisal theory
+\cite{moors2017}: each agent broadcasts a valence signal derived from its
+recent consumption rate $r_i^{\text{cons}} \in [0,1]$.
+
+$r_i^{\text{cons}}$ is the proportion of the last $m = 10$
+timesteps in which agent $i$ successfully exploited the resource. Personal satisfaction is
+then defined as:
+\begin{equation}
+    r_i^{\text{sat}} = \beta \cdot \mathbf{1}[\text{last\_meal}_i]
+                     + (1 - \beta) \cdot r_i^{\text{cons}}, \quad \beta = 0.5
+\end{equation}
+blending the most recent consumption outcome with the consumption rate.
+
+The valence signal broadcasted by each agent $e_i \in [-1, 1]$ is as:
+\begin{equation}
+    e_i = 2\,r_i^{\text{cons}} - 1
+\end{equation}
+
+Each agent $i$ receives, as observation $o_i$, the mean affective signal
+of all other agents:
+\begin{equation}
+    o_i = \frac{1}{N-1}\sum_{j \neq i} e_j
+\end{equation}
+ 
+\subsection{Reward Function}
+\label{sec:reward}
+ 
+The reward function implements \emph{empathy-driven reward shaping}
+\cite{lynne2016}. for a successful exploitation, each agent $i$ receives:
+\begin{equation}
+    r_i = r_i^{\text{sat}} \cdot (1 - \alpha_e) \;+\; \alpha_e \cdot o_i
+\end{equation}
+where:
+\begin{itemize}
+    \item $r_i^{\text{sat}} \in [0, 1]$: agent's personal satisfaction
+          (see Section~\ref{sec:emotions}),
+    \item $o_i \in [-1, 1]$: mean affective signal received from other agents
+          (see Section~\ref{sec:emotions}),
+    \item $\alpha_e \in [0, 1]$: empathic weight, interpolating between
+          purely self-interested ($\alpha_e = 0$) and purely
+          other-regarding ($\alpha_e = 1$) behaviour.
+\end{itemize}
+ 
+\subsection{Learning Algorithm}
+
+All agents are trained via Deep Q-Network (DQN) \cite{mnih2015}, each taking the scalar observation $o_i$ as sole input. All agents share the same network architecture and global hyperparameters (see Appendix~\ref{app:hyperparams}), but each agent maintains its own Q-network weights updated from its individual experience. Agents follow an $\varepsilon$-greedy exploration policy, and the Q-network is updated by minimising the mean squared Bellman error over sampled experience batches.
+
+\subsection{Study 1: Factorial Manipulation of Observation and Empathic Reward}
+
+\subsubsection{Framework}
+
+Study 1 adopts a $2\times2$ factorial design that crosses two independent
+dimensions: \emph{observation} (whether agents receive affective signals
+$o_i$ or a zero vector) and \emph{empathic weight}
+($\alpha_e \in \{0,\, 0.5\}$). This yields four homogeneous conditions,
+summarised in Table~\ref{tab:conditions}.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{llcc}
+\hline
+\textbf{Label} & \textbf{Description} & \textbf{Observation} & $\boldsymbol{\alpha_e}$ \\
+\hline
+Blind / Non-empathic & Baseline             & No  & $0.0$ \\
+Blind / Empathic     & Reward only          & No  & $0.5$ \\
+Sees / Ignores       & Observation only     & Yes & $0.0$ \\
+Full Empathy         & Observation + Reward & Yes & $0.5$ \\
+\hline
+\end{tabular}
+\caption{Conditions in Study 1.}
+\label{tab:conditions}
+\end{table}
+
+Common simulation parameters are listed in Appendix~\ref{app:simparams}.
+
+\subsubsection{Dependent Variables and Statistical Analysis}
+
+Two dependent variables are measured per episode:
+\begin{itemize}
+    \item \textbf{Episode length}: the number of steps before the resource
+          is fully depleted, used as a proxy for collective sustainability.
+          Longer episodes indicate that agents collectively conserved the
+          resource more effectively.
+    \item \textbf{Fairness}: the Gini coefficient of resource access across
+          agents within an episode, measuring inequality in the distribution
+          of successful exploitations. Lower values indicate more equitable
+          access.
+\end{itemize}
+
+A $2 \times 2$ between-subjects ANOVA is run on each dependent variable,
+with two factors:
+\begin{itemize}
+    \item \textbf{Observation} (absent vs.\ present): whether agents receive
+          the mean affective signal $o_i$ or a zero vector.
+    \item \textbf{Empathic weight} ($\alpha_e = 0$ vs.\ $\alpha_e = 0.5$):
+          whether the reward function includes a social component.
+\end{itemize}
+We test the main effect of each factor and their interaction.
+
+\subsection{Study 2: Graded Empathic Weight}
+
+\subsubsection{Framework}
+
+Study 2 holds observation fixed --- all agents receive the mean affective
+signal of their peers --- and varies $\alpha_e$ across five levels:
+$\{0.0,\, 0.25,\, 0.5,\, 0.75,\, 0.99\}$. All other parameters are
+identical to Study 1, with ten independent replications per $\alpha_e$ level.
+This characterises the dose-response relationship between empathic weight and
+collective resource management.
+
+\subsubsection{Dependent Variables and Statistical Analysis}
+
+The same two dependent variables as Study 1 are recorded (episode length
+and Gini coefficient of resource access). Because $\alpha_e$ is treated
+as a continuous ordinal variable rather than a categorical factor, the
+monotonic relationship between $\alpha_e$ and each outcome is assessed
+using Spearman's rank correlation $r_s$.

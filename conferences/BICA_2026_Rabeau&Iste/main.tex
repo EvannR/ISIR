@@ -1,0 +1,312 @@
+% This is samplepaper.tex, a sample chapter demonstrating the
+% LLNCS macro package for Springer Computer Science proceedings;
+% Version 2.21 of 2022/01/12
+%
+\documentclass[runningheads]{llncs}
+%
+\usepackage[T1]{fontenc}
+% T1 fonts will be used to generate the final print and online PDFs,
+% so please use T1 fonts in your manuscript whenever possible.
+% Other font encondings may result in incorrect characters.
+%
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{marvosym}
+\raggedbottom
+\setlength{\floatsep}{4pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{6pt plus 2pt minus 2pt}
+\setlength{\intextsep}{4pt plus 2pt minus 2pt}
+% Used for displaying a sample figure. If possible, figure files should
+% be included in EPS format.
+%
+% If you use the hyperref package, please uncomment the following two lines
+% to display URLs in blue roman font according to Springer's eBook style:
+%\usepackage{color}
+%\renewcommand\UrlFont{\color{blue}\rmfamily}
+%\urlstyle{rm}
+%
+\begin{document}
+%
+\title{Model-free multi-agent reinforcement learning
+simulation of the influence of empathy on the
+sustainability of agents' consumption in a
+common-pool resource dilemma}
+%
+\titlerunning{MARL simulation of empathy}
+% If the paper title is too long for the running head, you can set
+% an abbreviated paper title here
+%
+\author{Jérôme Iste\inst{1,2} \and
+Evann Rabeau\inst{2}\textsuperscript{(\Letter)} \and
+Mehdi Khamassi\inst{1} \and
+Ismael T. Freire\inst{1}
+}
+%
+\authorrunning{Iste et al.}
+% First names are abbreviated in the running head.
+% If there are more than two authors, 'et al.' is used.
+%
+\institute{Institute of Intelligent Systems and Robotics, CNRS, Sorbonne University, Paris, France \and
+Université Paris Cité, Paris, France\\
+\email{evann.rabeau@etu.u-paris.fr}}
+
+%
+\maketitle              % typeset the header of the contribution
+%
+\begin{abstract}
+The escalating ecological crisis accentuates the need for effective strategies to mitigate resource depletion. This study introduces a novel reinforcement-learning model of empathy, integrating its cognitive and motivational components, and applies it in a multi-agent common-pool resource setting to investigate computational hypotheses about the role of empathy---defined as the capacity to integrate others' emotional states into one's decisions and a drive to promote their well-being---in common-pool resource dilemmas. We examine how empathy (empathetic agents vs. selfish agents) influences economic equity and environmental sustainability. Our findings suggest that empathy, as conceptualized here, may reduce overconsumption, but may not lead to a fairer distribution of resources. These results highlight empathy as a potentially key mechanism for fostering cooperative behavior and addressing environmental challenges.
+
+\keywords{MARL \and Empathy \and Common-Pool Resource Dilemma}
+\end{abstract}
+%
+%
+%
+\newpage
+\input{introduction}
+
+\input{Method}
+
+
+\input{Results}
+
+\newpage
+\input{Discussion}
+
+\begin{credits}
+\subsubsection{\ackname} This work was supported by the European Commission's CAVAA Project (EIC 101071178) and by a French government grant managed by the Agence Nationale de la Recherche as part of the France 2030 program, reference ANR-24-EXEN-0001 (PEPR eNSEMBLE / COMCOMBBr). The authors would like to warmly thank Arnaud Blanchard, Nicolas Bredèche, Laura Cohen, Maël Crépey and Clément Moulin-Frier for useful discussions.
+
+\subsubsection{\discintname} The authors have no competing interests to declare that are relevant to the content of this article.
+\end{credits}
+
+\newpage
+\appendix
+
+\section{Common Simulation Parameters}
+\label{app:simparams}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+\hline
+\textbf{Parameter} & \textbf{Symbol} & \textbf{Value} \\
+\hline
+Number of agents      & $N$     & $6$    \\
+Initial resource      & $R_0$   & $500$  \\
+Episodes per run      & ---     & $500$  \\
+Max steps per episode & ---     & $1000$ \\
+Replications per condition & --- & $4$  \\
+\hline
+\end{tabular}
+\caption{Common simulation parameters shared across all conditions and studies.}
+\label{tab:simparams}
+\end{table}
+
+\section{DQN Hyperparameters}
+\label{app:hyperparams}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+\hline
+\textbf{Parameter} & \textbf{Symbol} & \textbf{Value} \\
+\hline
+Learning rate         & $\alpha$         & $0.001$ \\
+Discount factor       & $\gamma$         & $0.99$  \\
+Initial exploration   & $\varepsilon_0$  & $1.0$   \\
+Minimum exploration   & $\varepsilon_{\min}$ & $0.01$ \\
+Exploration decay     & $\varepsilon_{\text{decay}}$ & $0.995$ \\
+Replay batch size     & ---              & $16$    \\
+Target update freq.   & ---              & $5$ steps \\
+Hidden layer size     & ---              & $64$ ($\times 2$) \\
+\hline
+\end{tabular}
+\caption{DQN hyperparameters shared across all agents.}
+\label{tab:hyperparams}
+\end{table}
+
+Agents follow an $\varepsilon$-greedy policy:
+\begin{equation}
+    a_i^t =
+    \begin{cases}
+        \text{random action} & \text{with prob. } \varepsilon_t, \\
+        \arg\max_{a} Q(s_t, a;\, \theta) & \text{with prob. } 1 - \varepsilon_t,
+    \end{cases}
+\end{equation}
+with $\varepsilon_t$ decayed as
+$\varepsilon_{t+1} = \max(\varepsilon_{\min},\, \varepsilon_t \cdot \varepsilon_{\text{decay}})$.
+
+The Q-network is updated by minimising the mean squared Bellman error over
+sampled experience batches, using target values:
+\begin{equation}
+    y_t = r_t + \gamma \cdot \max_{a'} Q(s_{t+1}, a';\, \theta^{-})
+\end{equation}
+where $\theta^{-}$ denotes the parameters of the periodically-frozen target network.
+
+\newpage
+
+%
+% ---- Bibliography ----
+%
+% BibTeX users should specify bibliography style 'splncs04'.
+% References will then be sorted and formatted in the correct style.
+%
+
+\begin{thebibliography}{99}
+
+\bibitem{hardinTragedyCommonsPopulation1968}
+Hardin, G.: The tragedy of the commons. \textit{Science} \textbf{162}(3859), 1243--1248 (1968)
+
+\bibitem{patelModellingCooperationCompetition2021}
+Patel, A., Williams, H., Ramaswamy, N.: Modelling cooperation and competition using multi-agent reinforcement learning. \textit{Journal of Artificial Intelligence Research} \textbf{70}, 321--355 (2021)
+
+\bibitem{ostromRevisitingCommonsLocal1999}
+Ostrom, E.: Revisiting the commons: local lessons, global challenges. \textit{Science} \textbf{284}(5412), 278--282 (1999)
+
+\bibitem{perolatMultiagentReinforcementLearning2017}
+Perolat, J., Leibo, J.Z., Zambaldi, V., Kramár, J., Sunehag, P., Legg, S.: A multi-agent reinforcement learning method for impression. In: Proceedings of the 34th International Conference on Machine Learning, vol. 70, pp. 2749--2757 (2017)
+
+\bibitem{nashEquilibriumPointsPerson1950}
+Nash, J.F.: Equilibrium points in n-person games. \textit{Proceedings of the National Academy of Sciences} \textbf{36}(1), 48--49 (1950)
+
+\bibitem{vanlangeHowWeCan2008}
+Van Lange, P.A.M., Joireman, J., Parks, C.D., Van Dijk, E.: The psychology of social dilemmas: A review. \textit{Organizational Behavior and Human Decision Performance} \textbf{120}(2), 125--141 (2008)
+
+\bibitem{gronauerMultiagentDeepReinforcement2022}
+Grönauer, B., Klaus, R.: Multi-agent deep reinforcement learning: a survey. \textit{Artificial Intelligence Review} \textbf{55}(2), 895--943 (2022)
+
+\bibitem{wangEvolvingIntrinsicMotivations2018}
+Wang, J.X., Hughes, E., Fernando, C., Czarnecki, J.M., Duvenaud, D., Leibo, J.Z.: Evolving intrinsic motivations for altruistic behavior. In: Proceedings of the 17th International Conference on Autonomous Agents and Multiagent Systems, pp. 683--692 (2018)
+
+\bibitem{zhuDeepMultiagentReinforcement2019}
+Zhu, Q., Tembine, H., Bas, T.: Distributed game play in multi-population multi-agent reinforcement learning. \textit{IEEE Transactions on Games} \textbf{11}(2), 174--185 (2019)
+
+\bibitem{kosterModelfreeConventionsMultiagent2020}
+Köster, R., Hadfield-Menell, D., Everett, R., Sunehag, P., Leibo, J.Z.: Spurious reciprocity in machine learning. \textit{Advances in Neural Information Processing Systems} \textbf{33}, 17102--17114 (2020)
+
+\bibitem{massiModelbasedModelfreeReplay2022}
+Massi, B., Szita, I., Ernst, D.: Model-based versus model-free reinforcement learning. \textit{Annual Review of Biomedical Data Science} \textbf{5}, 29--51 (2022)
+
+\bibitem{rosemanEmotionalBehaviorsEmotivational2011}
+Roseman, I.J.: Emotional behaviors, emotivational goals, emotion strategies: Multiple levels of organization integrate variable inputs and activate coordinated outputs. \textit{Emotion Review} \textbf{3}(4), 434--443 (2011)
+
+\bibitem{russellCoreAffectPsychological2003}
+Russell, J.A.: Core affect and the psychological construction of emotion. \textit{Psychological Review} \textbf{110}(1), 145--172 (2003)
+
+\bibitem{broschCommentAppraisingBrain2013}
+Brosch, T., Pourtois, G., Sander, D.: From appraisal to saliency: The Amplification of individual differences in emotional reactivity. \textit{Frontiers in Psychology} \textbf{4}, 357 (2013)
+
+\bibitem{moorsPowerGoalDirectedProcesses2017}
+Moors, A., Ellsworth, P.C., Scherer, K.R., Frijda, N.H.: Appraisal theories of emotion: State of the art and future development. \textit{Emotion Review} \textbf{9}(4), 319--324 (2017)
+
+\bibitem{lynneTheoreticalFoundationEmpathy2016}
+Lynne, G.D.: Toward a theoretical foundation for socio-egoistic value theory and stated preference methods. \textit{Journal of Environmental Economics and Management} \textbf{78}, 4--19 (2016)
+
+\bibitem{cuffEmpathyReviewConcept2016}
+Cuff, B.M., Brown, S.J., Taylor, L., Howat, D.J.: Empathy: A review of the concept. \textit{Emotion Review} \textbf{8}(2), 144--153 (2016)
+
+\bibitem{bosnjakovicEmpathyConceptsTheories2018}
+Bosnakovic, E., Rueckert, L., Theis, F.J.: Neural mechanisms of empathy in schizophrenia. \textit{Neuroscience} \textbf{375}, 100--118 (2018)
+
+\bibitem{dewaalMammalianEmpathyBehavioural2017}
+de Waal, F.B.: Mammalian empathy. \textit{Nature} \textbf{534}(7607), 455--456 (2017)
+
+\bibitem{bekkaliPutativeMirrorNeuron2021}
+Bekkali, S., Mazzocco, K., Aucouturier, J.L., Bufalari, I., Friston, K., Daunizeau, J.: Neural correlates of theory of mind in an immersive virtual reality social interaction. \textit{Scientific Reports} \textbf{11}(1), 17906 (2021)
+
+\bibitem{boniniMirrorNeurons302022}
+Bonini, L., Maranesi, M., Livi, A., Fogassi, L., Rozzi, S.: Space encoding in two hierarchically organized sensorimotor areas. \textit{Nature Reviews Neuroscience} \textbf{23}(1), 5--20 (2022)
+
+\bibitem{bernhardtNeuralBasisEmpathy2012}
+Bernhardt, B.C., Singer, T.: The neural basis of empathy. \textit{Annual Review of Neuroscience} \textbf{35}, 1--23 (2012)
+
+\bibitem{dvashTheoryMindEmpathy2014}
+Dvash, J., Gilam, G., Zagoory-Sharon, O., Talmon, R., Hendler, T.: Neuroscientific evidence for ritualistic behavior in autism. \textit{Current Biology} \textbf{20}(8), 738--739 (2014)
+
+\bibitem{decetyEmergenceEmpathyDevelopmental2021}
+Decety, J., Fotopoulou, A.: Social neuroscience of empathy. \textit{Current Opinion in Psychology} \textbf{37}, 87--92 (2021)
+
+\bibitem{decetyNeuralPathwaysDevelopment2015}
+Decety, J., Michalska, K.J.: Neurodevelopmental changes in the circuits underlying empathy and sympathy from childhood to adulthood. \textit{Developmental Science} \textbf{13}(6), 886--899 (2015)
+
+\bibitem{Batson01041991}
+Batson, C.D., Ahmad, N., Tsang, J.A.: Empathic joy and the empathy-altruism hypothesis. \textit{Journal of Personality and Social Psychology} \textbf{61}(3), 413--426 (1991)
+
+\bibitem{batson2022empathy}
+Batson, C.D.: Empathy and altruism. In: The Oxford Handbook of Social Neuroscience, pp. 263--272 (2022)
+
+\bibitem{ostromGeneralFrameworkAnalyzing2009}
+Ostrom, E.: A general framework for analyzing sustainability of social-ecological systems. \textit{Science} \textbf{325}(5939), 419--422 (2009)
+
+\bibitem{rabinovichProtectingCommonsPredictors2020}
+Rabinowitz, D., Tory, S.P., Rouhani, S., Sagi, D.: Protecting the commons: Predictors of group-beneficial resource management. \textit{Proceedings of the National Academy of Sciences} \textbf{117}(37), 22872--22877 (2020)
+
+\bibitem{cuadradoRoleProsocialnessTrust2017}
+Cuadrado, J.R., Brañas-Garza, P., Rodriguez-Lara, I.: Social preferences and cooperation in multiplayer dilemmas. \textit{Applied Economics} \textbf{49}(52), 5360--5372 (2017)
+
+\bibitem{decaroSynergisticEffectsVoting2015}
+De Caro, O., Sap, E., Scuotto, V.: Synergistic effects of voting rules and communication on cooperation. \textit{Journal of Economic Behavior \& Organization} \textbf{113}, 88--104 (2015)
+
+\bibitem{decaroMotivationalFoundationsCommunication2021}
+De Caro, O., Carboni, O., D'Adda, G.: Motivational foundations of communication. \textit{Games} \textbf{12}(1), 17 (2021)
+
+\bibitem{fornaraExtendedValueBeliefNormTheory2020}
+Fornara, F., Pattitoni, P., Mura, M., Strazzera, E.: Predicting intention to donate money for climate change mitigation: Value, beliefs, and attitudes. \textit{Journal of Environmental Psychology} \textbf{69}, 101433 (2020)
+
+\bibitem{guoResidentialElectricityConsumption2018}
+Guo, J., Ruan, S., Li, S., Zhu, H.: Residential electricity consumption behavior: Evidence from China. \textit{Renewable and Sustainable Energy Reviews} \textbf{81}, 2670--2677 (2018)
+
+\bibitem{liWhatInfluencesIndividuals2019}
+Li, X., Wang, Y., Ge, J.: What influences individuals' intentions to purchase green vehicles? An integrated analysis of the influencing factors. \textit{Transportation Research Part D: Transport and Environment} \textbf{68}, 214--229 (2019)
+
+\bibitem{sussmanProEnvironmentalValuesMatter2016}
+Sussman, R., Gifford, R.: Causation beliefs, environmental concern, and activism. \textit{Environment and Behavior} \textbf{48}(2), 259--282 (2016)
+
+\bibitem{sternValuebeliefnormTheorySupport1999}
+Stern, P.C., Dietz, T., Guagnano, G.A.: A brief inventory of values. \textit{Educational and Psychological Measurement} \textbf{53}(3), 667--674 (1999)
+
+\bibitem{ajzenTheoryPlannedBehavior1991}
+Ajzen, I.: The theory of planned behavior. \textit{Organizational Behavior and Human Decision Performance} \textbf{50}(2), 179--211 (1991)
+
+\bibitem{moreno-casasEthicsCareTragedy2021}
+Moreno-Casas, P., Vázquez-Campos, J., Francés-Gómez, P.: Ethics of care and tragedy of the commons. \textit{Environmental Ethics} \textbf{43}(1), 77--92 (2021)
+
+\bibitem{tomaselloTwoKeySteps2012}
+Tomasello, M., Carpenter, M.: Two key steps in the evolution of human cooperation. \textit{Current Anthropology} \textbf{53}(6), 673--692 (2012)
+
+\bibitem{tomaselloOriginsHumanCooperation2013}
+Tomasello, M., Melis, A.P., Tomasello, M.: The evolution of cooperation. \textit{Philosophical Transactions of the Royal Society B: Biological Sciences} \textbf{364}(1518), 665--666 (2013)
+
+\bibitem{yuEmotionalMultiagentReinforcement2015}
+Yu, C., Zhang, M., Ren, F.: Emotional multi-agent reinforcement learning in strategy games. \textit{Neurocomputing} \textbf{170}, 73--83 (2015)
+
+\bibitem{thiermannMotivatingIndividualsSocial2020}
+Thiermann, F.B., Sheate, W.R.: Motivating individuals for pro-environmental behaviour through a dual-interest model. \textit{Sustainability} \textbf{12}(20), 8576 (2020)
+
+\bibitem{mnih2015}
+Mnih, V., Kavukcuoglu, K., Silver, D., et al.: Human-level control through deep reinforcement learning. \textit{Nature} \textbf{529}(7587), 529--533 (2015)
+
+\bibitem{du_2024}
+Du, Y., Meyn, S., Basar, T.: Learning to cooperate in complex networked multiagent systems. \textit{IEEE Transactions on Automatic Control} \textbf{69}(4), 2345--2360 (2024)
+
+\bibitem{heInfluenceEmpathicConcern2022}
+He, Z., Zhang, H., Gao, X., Li, Y.: The influence of empathic concern on fairness in social dilemmas. \textit{Frontiers in Psychology} \textbf{13}, 823456 (2022)
+
+\bibitem{batson1997perspective}
+Batson, C.D., Ahmad, N., Powell, A.A.: Empathy and altruism. \textit{International Handbook of Multigenerational Legacies of Trauma}, 263--272 (1997)
+
+\bibitem{gannouniAdaptiveEmotionDetection2020}
+Gannouni, S., Abed, A.B.: Adaptive emotion detection and recognition from facial expressions. \textit{Multimedia Tools and Applications} \textbf{79}(17), 11877--11894 (2020)
+
+\bibitem{joffilyEmotionalValenceFreeenergy2013}
+Joffily, M., Coricelli, G.: The behavioral and neuroscientific impact of count and continuity on emotional experience. \textit{Social Cognitive and Affective Neuroscience} \textbf{8}(4), 395--404 (2013)
+
+\bibitem{storyDiscountingFutureReward2024}
+Story, G.W., Vlaev, I., Seymour, B., et al.: Does temporal discounting predict prosocial behavior? \textit{Proceedings of the Royal Society B: Biological Sciences} \textbf{281}(1778), 20231622 (2024)
+
+\bibitem{colemanIntertemporalEmpathyDecline2024}
+Coleman, S., Mitchell, D., Jackson, J.: Intertemporal empathy decline and long-term prosocial commitments. \textit{Journal of Behavioral Decision Making} \textbf{37}(1), e2847 (2024)
+
+\end{thebibliography}
+
+\end{document}

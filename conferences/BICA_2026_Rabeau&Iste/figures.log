@@ -1,0 +1,292 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (MiKTeX 25.4) (preloaded format=pdflatex 2026.5.9)  15 JUL 2026 15:23
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**./figures.tex
+(figures.tex
+LaTeX2e <2024-11-01> patch level 2
+L3 programming layer <2025-04-29>
+(C:\Users\evann\AppData\Local\Programs\MiKTeX\tex/latex/base\article.cls
+Document Class: article 2024/06/29 v1.4n Standard LaTeX document class
+(C:\Users\evann\AppData\Local\Programs\MiKTeX\tex/latex/base\size11.clo
+File: size11.clo 2024/06/29 v1.4n Standard LaTeX file (size option)
+)
+\c@part=\count272
+\c@section=\count273
+\c@subsection=\count274
+\c@subsubsection=\count275
+\c@paragraph=\count276
+\c@subparagraph=\count277
+\c@figure=\count278
+\c@table=\count279
+\abovecaptionskip=\skip49
+\belowcaptionskip=\skip50
+\bibindent=\dimen146
+)
+(C:\Users\evann\AppData\Local\Programs\MiKTeX\tex/latex/base\fontenc.sty
+Package: fontenc 2021/04/29 v2.0v Standard LaTeX package
+)
+(C:\Users\evann\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphicx.sty
+Package: graphicx 2021/09/16 v1.2d Enhanced LaTeX Graphics (DPC,SPQR)
+
+(C:\Users\evann\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty
+Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
+\KV@toks@=\toks17
+)
+(C:\Users\evann\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphics.sty
+Package: graphics 2024/08/06 v1.4g Standard LaTeX Graphics (DPC,SPQR)
+
+(C:\Users\evann\AppData\Local\Programs\MiKTeX\tex/latex/graphics\trig.sty
+Package: trig 2023/12/02 v1.11 sin cos tan (DPC)
+)
+(C:\Users\evann\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\graphics.c
+fg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: pdftex.def on input line 106.
+
+(C:\Users\evann\AppData\Local\Programs\MiKTeX\tex/latex/graphics-def\pdftex.def
+File: pdftex.def 2024/04/13 v1.2c Graphics/color driver for pdftex
+))
+\Gin@req@height=\dimen147
+\Gin@req@width=\dimen148
+) (C:\Users\evann\AppData\Local\Programs\MiKTeX\tex/latex/float\float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count280
+\float@exts=\toks18
+\float@box=\box53
+\@float@everytoks=\toks19
+\@floatcapt=\box54
+)
+(C:\Users\evann\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.sty
+Package: geometry 2020/01/02 v5.9 Page Geometry
+
+(C:\Users\evann\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifvtex.sty
+Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
+
+(C:\Users\evann\AppData\Local\Programs\MiKTeX\tex/generic/iftex\iftex.sty
+Package: iftex 2024/12/12 v1.0g TeX engine tests
+))
+\Gm@cnth=\count281
+\Gm@cntv=\count282
+\c@Gm@tempcnt=\count283
+\Gm@bindingoffset=\dimen149
+\Gm@wd@mp=\dimen150
+\Gm@odd@mp=\dimen151
+\Gm@even@mp=\dimen152
+\Gm@layoutwidth=\dimen153
+\Gm@layoutheight=\dimen154
+\Gm@layouthoffset=\dimen155
+\Gm@layoutvoffset=\dimen156
+\Gm@dimlist=\toks20
+
+(C:\Users\evann\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.cfg))
+(C:\Users\evann\AppData\Local\Programs\MiKTeX\tex/latex/caption\caption.sty
+Package: caption 2023/08/05 v3.6o Customizing captions (AR)
+
+(C:\Users\evann\AppData\Local\Programs\MiKTeX\tex/latex/caption\caption3.sty
+Package: caption3 2023/07/31 v2.4d caption3 kernel (AR)
+\caption@tempdima=\dimen157
+\captionmargin=\dimen158
+\caption@leftmargin=\dimen159
+\caption@rightmargin=\dimen160
+\caption@width=\dimen161
+\caption@indent=\dimen162
+\caption@parindent=\dimen163
+\caption@hangindent=\dimen164
+Package caption Info: Standard document class detected.
+)
+\c@caption@flags=\count284
+\c@continuedfloat=\count285
+Package caption Info: float package is loaded.
+)
+(C:\Users\evann\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdf
+tex.def
+File: l3backend-pdftex.def 2025-04-14 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count286
+) (figures.aux)
+\openout1 = `figures.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+
+(C:\Users\evann\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mk
+ii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count287
+\scratchdimen=\dimen165
+\scratchbox=\box55
+\nofMPsegments=\count288
+\nofMParguments=\count289
+\everyMPshowfont=\toks21
+\MPscratchCnt=\count290
+\MPscratchDim=\dimen166
+\MPnumerator=\count291
+\makeMPintoPDFobject=\count292
+\everyMPtoPDFconversion=\toks22
+)
+(C:\Users\evann\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-b
+ase.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
+85.
+
+(C:\Users\evann\AppData\Local\Programs\MiKTeX\tex/latex/00miktex\epstopdf-sys.c
+fg
+File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
+))
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+*geometry* verbose mode - [ preamble ] result:
+* driver: pdftex
+* paper: <default>
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: 
+* h-part:(L,W,R)=(56.9055pt, 500.484pt, 56.9055pt)
+* v-part:(T,H,B)=(56.9055pt, 681.15898pt, 56.9055pt)
+* \paperwidth=614.295pt
+* \paperheight=794.96999pt
+* \textwidth=500.484pt
+* \textheight=681.15898pt
+* \oddsidemargin=-15.36449pt
+* \evensidemargin=-15.36449pt
+* \topmargin=-52.36449pt
+* \headheight=12.0pt
+* \headsep=25.0pt
+* \topskip=11.0pt
+* \footskip=30.0pt
+* \marginparwidth=59.0pt
+* \marginparsep=10.0pt
+* \columnsep=10.0pt
+* \skip\footins=10.0pt plus 4.0pt minus 2.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: End \AtBeginDocument code.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <12> on input line 15.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 15.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 15.
+<figures/results/matrix_steps_trajectory.pdf, id=1, 553.25899pt x 336.51619pt>
+File: figures/results/matrix_steps_trajectory.pdf Graphic file (type pdf)
+<use figures/results/matrix_steps_trajectory.pdf>
+Package pdftex.def Info: figures/results/matrix_steps_trajectory.pdf  used on i
+nput line 21.
+(pdftex.def)             Requested size: 400.38872pt x 243.53409pt.
+<figures/results/full star matrix depletion.png, id=2, 907.9521pt x 337.0191pt>
+
+File: figures/results/full star matrix depletion.png Graphic file (type png)
+<use figures/results/full star matrix depletion.png>
+Package pdftex.def Info: figures/results/full star matrix depletion.png  used o
+n input line 28.
+(pdftex.def)             Requested size: 500.484pt x 185.77248pt.
+
+
+[1
+
+{C:/Users/evann/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map} <./figures/re
+sults/matrix_steps_trajectory.pdf>]
+<figures/results/matrix_gini_trajectory.pdf, id=76, 553.28282pt x 336.64206pt>
+File: figures/results/matrix_gini_trajectory.pdf Graphic file (type pdf)
+<use figures/results/matrix_gini_trajectory.pdf>
+Package pdftex.def Info: figures/results/matrix_gini_trajectory.pdf  used on in
+put line 34.
+(pdftex.def)             Requested size: 400.38872pt x 243.60976pt.
+<figures/results/full star matrix gini.png, id=77, 906.9885pt x 337.0191pt>
+File: figures/results/full star matrix gini.png Graphic file (type png)
+<use figures/results/full star matrix gini.png>
+Package pdftex.def Info: figures/results/full star matrix gini.png  used on inp
+ut line 41.
+(pdftex.def)             Requested size: 500.484pt x 185.97304pt.
+
+
+[2 <./figures/results/full star matrix depletion.png> <./figures/results/matrix
+_gini_trajectory.pdf>]
+
+[3 <./figures/results/full star matrix gini.png>]
+<figures/results/alpha_steps_trajectory.pdf, id=150, 553.25899pt x 336.64206pt>
+
+File: figures/results/alpha_steps_trajectory.pdf Graphic file (type pdf)
+<use figures/results/alpha_steps_trajectory.pdf>
+Package pdftex.def Info: figures/results/alpha_steps_trajectory.pdf  used on in
+put line 51.
+(pdftex.def)             Requested size: 400.38872pt x 243.62517pt.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <10.95> on input line 52.
+<figures/results/full star alpha depletion.png, id=151, 915.42pt x 337.26pt>
+File: figures/results/full star alpha depletion.png Graphic file (type png)
+<use figures/results/full star alpha depletion.png>
+Package pdftex.def Info: figures/results/full star alpha depletion.png  used on
+ input line 57.
+(pdftex.def)             Requested size: 500.484pt x 184.38715pt.
+<figures/results/alpha_gini_trajectory.pdf, id=152, 553.25267pt x 336.64206pt>
+File: figures/results/alpha_gini_trajectory.pdf Graphic file (type pdf)
+<use figures/results/alpha_gini_trajectory.pdf>
+Package pdftex.def Info: figures/results/alpha_gini_trajectory.pdf  used on inp
+ut line 64.
+(pdftex.def)             Requested size: 400.38872pt x 243.62517pt.
+
+
+[4
+
+ <./figures/results/alpha_steps_trajectory.pdf> <./figures/results/full star al
+pha depletion.png>]
+<figures/results/full star alpha Gini.png, id=209, 915.42pt x 337.0191pt>
+File: figures/results/full star alpha Gini.png Graphic file (type png)
+<use figures/results/full star alpha Gini.png>
+Package pdftex.def Info: figures/results/full star alpha Gini.png  used on inpu
+t line 71.
+(pdftex.def)             Requested size: 500.484pt x 184.25543pt.
+
+
+[5 <./figures/results/alpha_gini_trajectory.pdf> <./figures/results/full star a
+lpha Gini.png>] (figures.aux)
+ ***********
+LaTeX2e <2024-11-01> patch level 2
+L3 programming layer <2025-04-29>
+ ***********
+ ) 
+Here is how much of TeX's memory you used:
+ 3563 strings out of 469923
+ 62399 string characters out of 5469171
+ 440180 words of memory out of 5000000
+ 30398 multiletter control sequences out of 15000+600000
+ 635010 words of font info for 58 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 57i,6n,65p,301b,346s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ <C:\Users\evann\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecti
+1095.pk> <C:\Users\evann\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi60
+0\ecrm1095.pk> <C:\Users\evann\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec
+/dpi600\ecbx1440.pk> <C:\Users\evann\AppData\Local\MiKTeX\fonts/pk/ljfour/jknap
+pen/ec/dpi600\ecrm1200.pk> <C:\Users\evann\AppData\Local\MiKTeX\fonts/pk/ljfour
+/jknappen/ec/dpi600\ecrm1728.pk><C:/Users/evann/AppData/Local/Programs/MiKTeX/f
+onts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/evann/AppData/Local/Programs
+/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb>
+Output written on figures.pdf (5 pages, 852336 bytes).
+PDF statistics:
+ 410 PDF objects out of 1000 (max. 8388607)
+ 0 named destinations out of 1000 (max. 500000)
+ 41 words of extra memory for PDF output out of 10000 (max. 10000000)
+

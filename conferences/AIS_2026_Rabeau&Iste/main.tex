@@ -1,0 +1,157 @@
+% This is samplepaper.tex, a sample chapter demonstrating the
+% LLNCS macro package for Springer Computer Science proceedings;
+% Version 2.21 of 2022/01/12
+%
+\documentclass[runningheads]{llncs}
+%
+\usepackage[T1]{fontenc}
+% T1 fonts will be used to generate the final print and online PDFs,
+% so please use T1 fonts in your manuscript whenever possible.
+% Other font encondings may result in incorrect characters.
+%
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{marvosym}
+\raggedbottom
+\setlength{\floatsep}{4pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{6pt plus 2pt minus 2pt}
+\setlength{\intextsep}{4pt plus 2pt minus 2pt}
+% Used for displaying a sample figure. If possible, figure files should
+% be included in EPS format.
+%
+% If you use the hyperref package, please uncomment the following two lines
+% to display URLs in blue roman font according to Springer's eBook style:
+%\usepackage{color}
+%\renewcommand\UrlFont{\color{blue}\rmfamily}
+%\urlstyle{rm}
+%
+\begin{document}
+%
+\title{Model-free multi-agent reinforcement learning
+simulation of the influence of empathy on the
+sustainability of agents' consumption in a
+common-pool resource dilemma}
+%
+\titlerunning{MARL simulation of empathy}
+% If the paper title is too long for the running head, you can set
+% an abbreviated paper title here
+%
+\author{Jérôme Iste\inst{1,2} \and
+Evann Rabeau\inst{2}\textsuperscript{(\Letter)} \and
+Mehdi Khamassi\inst{1} \and
+Ismael T. Freire\inst{1}
+}
+%
+\authorrunning{Iste et al.}
+% First names are abbreviated in the running head.
+% If there are more than two authors, 'et al.' is used.
+%
+\institute{Institute of Intelligent Systems and Robotics, CNRS, Sorbonne University, Paris, France \and
+Université Paris Cité, Paris, France\\
+\email{evann.rabeau@etu.u-paris.fr}}
+
+%
+\maketitle              % typeset the header of the contribution
+%
+\begin{abstract}
+The escalating ecological crisis accentuates the need for effective strategies to mitigate resource depletion. This study introduces a novel reinforcement-learning model of empathy, integrating its cognitive and motivational components, and applies it in a multi-agent common-pool resource setting to investigate computational hypotheses about the role of empathy, defined as the capacity to integrate others' emotional states into one's decisions and a drive to promote their well-being, in common-pool resource dilemmas. We examine how empathy (empathetic agents vs. selfish agents) influences economic equity and environmental sustainability. Our findings suggest that empathy, as conceptualized here, may reduce overconsumption, but may not lead to a fairer distribution of resources. These results highlight empathy as a potentially key mechanism for fostering cooperative behavior and addressing environmental challenges.
+
+\keywords{MARL \and Empathy \and Common-Pool Resource Dilemma}
+\end{abstract}
+%
+%
+%
+\newpage
+\input{introduction}
+
+\input{Method}
+
+
+\input{Results}
+
+\newpage
+\input{Discussion}
+
+\begin{credits}
+\subsubsection{\ackname} This work was supported by the European Commission's CAVAA Project (EIC 101071178) and by a French government grant managed by the Agence Nationale de la Recherche as part of the France 2030 program, reference ANR-24-EXEN-0001 (PEPR eNSEMBLE / COMCOMBBr). The authors would like to warmly thank Arnaud Blanchard, Nicolas Bredèche, Laura Cohen, Maël Crépey and Clément Moulin-Frier for useful discussions.
+
+\subsubsection{\discintname} The authors have no competing interests to declare that are relevant to the content of this article.
+\end{credits}
+
+\newpage
+\appendix
+
+\section{Common Simulation Parameters}
+\label{app:simparams}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+\hline
+\textbf{Parameter} & \textbf{Symbol} & \textbf{Value} \\
+\hline
+Number of agents      & $N$     & $6$    \\
+Initial resource      & $R_0$   & $500$  \\
+Episodes per run      & ---     & $500$  \\
+Max steps per episode & ---     & $1000$ \\
+Replications per condition & --- & $4$  \\
+\hline
+\end{tabular}
+\caption{Common simulation parameters shared across all conditions and studies.}
+\label{tab:simparams}
+\end{table}
+
+\section{DQN Hyperparameters}
+\label{app:hyperparams}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+\hline
+\textbf{Parameter} & \textbf{Symbol} & \textbf{Value} \\
+\hline
+Learning rate         & $\alpha$         & $0.001$ \\
+Discount factor       & $\gamma$         & $0.99$  \\
+Initial exploration   & $\varepsilon_0$  & $1.0$   \\
+Minimum exploration   & $\varepsilon_{\min}$ & $0.01$ \\
+Exploration decay     & $\varepsilon_{\text{decay}}$ & $0.995$ \\
+Replay batch size     & ---              & $16$    \\
+Target update freq.   & ---              & $5$ steps \\
+Hidden layer size     & ---              & $64$ ($\times 2$) \\
+\hline
+\end{tabular}
+\caption{DQN hyperparameters shared across all agents.}
+\label{tab:hyperparams}
+\end{table}
+
+Agents follow an $\varepsilon$-greedy policy:
+\begin{equation}
+    a_i^t =
+    \begin{cases}
+        \text{random action} & \text{with prob. } \varepsilon_t, \\
+        \arg\max_{a} Q(s_t, a;\, \theta) & \text{with prob. } 1 - \varepsilon_t,
+    \end{cases}
+\end{equation}
+with $\varepsilon_t$ decayed as
+$\varepsilon_{t+1} = \max(\varepsilon_{\min},\, \varepsilon_t \cdot \varepsilon_{\text{decay}})$.
+
+The Q-network is updated by minimising the mean squared Bellman error over
+sampled experience batches, using target values:
+\begin{equation}
+    y_t = r_t + \gamma \cdot \max_{a'} Q(s_{t+1}, a';\, \theta^{-})
+\end{equation}
+where $\theta^{-}$ denotes the parameters of the periodically-frozen target network.
+
+\newpage
+
+%
+% ---- Bibliography ----
+%
+% BibTeX users should specify bibliography style 'splncs04'.
+% References will then be sorted and formatted in the correct style.
+%
+\bibliographystyle{splncs04}
+\bibliography{ref}
+
+\end{document}

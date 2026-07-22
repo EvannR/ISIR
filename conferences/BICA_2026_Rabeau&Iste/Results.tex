@@ -1,0 +1,83 @@
+\section{Results}
+
+\subsection{Study 1: Empathy Reduces Overconsumption}
+
+To test our first hypothesis regarding the impact of cognitive and motivational factors, we conducted a $2 \times 2$ between-subjects ANOVA with emotion-perception ability (present vs.\ absent) and empathic motivation ($0$ vs.\ $0.5$) as independent variables.
+
+\subsubsection{Episode Length.}
+Figure~\ref{fig:matrix_steps_traj} shows the evolution of episode length across episodes for each empathic condition, and Fig.~\ref{fig:matrix_steps_box} presents the aggregated distributions.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/results/matrix_steps_trajectory}
+  \caption{Episode length as a function of empathic properties across episodes. \textit{Cog}: ability to perceive others' emotions; \textit{Motiv}: empathic motivation.}
+  \label{fig:matrix_steps_traj}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{figures/results/full star matrix depletion.png}
+  \caption{Episode length as a function of empathic properties, aggregated across episodes.}
+  \label{fig:matrix_steps_box}
+\end{figure}
+
+A two-way ANOVA on episode length revealed significant main effects of emotion-perception ability ($F(1, 12) = 81.67$, $p < .001$, $\eta_p^2 = .87$) and empathic motivation ($F(1, 12) = 329.72$, $p < .001$, $\eta_p^2 = .96$). Specifically, simulations in which agents were able to perceive others' emotions showed greater sustainability than agents without this ability, and higher levels of empathic motivation were associated with longer episode durations. In addition, the interaction between the two factors was significant ($F(1, 12) = 57.69$, $p < .001$, $\eta_p^2 = .83$), following a sub-additive pattern: the benefit of each component was smaller when the other was already present, consistent with a ceiling effect on sustainability.
+
+\subsubsection{Gini Coefficient.}
+Figure~\ref{fig:matrix_gini_traj} shows the evolution of the Gini coefficient across episodes, and Fig.~\ref{fig:matrix_gini_box} presents the aggregated distributions.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/results/matrix_gini_trajectory.pdf}
+  \caption{Fairness (Gini coefficient of resource access) as a function of empathic properties across episodes.}
+  \label{fig:matrix_gini_traj}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{figures/results/full star matrix gini.png}
+  \caption{Fairness (Gini coefficient of resource access) as a function of empathic properties, aggregated across episodes.}
+  \label{fig:matrix_gini_box}
+\end{figure}
+
+A two-way ANOVA on the Gini coefficient revealed significant main effects of emotion-perception ability ($F(1, 12) = 12.13$, $p = .005$, $\eta_p^2 = .50$) and empathic motivation ($F(1, 12) = 458.68$, $p < .001$, $\eta_p^2 = .97$), qualified by a significant interaction between the two factors ($F(1, 12) = 145.64$, $p < .001$, $\eta_p^2 = .92$). Higher levels of empathic motivation were associated with higher Gini coefficients, whereas the effect of emotion perception depended on the motivational component: perceiving others' emotions increased inequality among non-empathic agents but substantially attenuated the inequality associated with motivational empathy.
+
+\subsection{Study 2: More Altruistic Motivation, Less Depletion}
+
+\subsubsection{Episode Length.}
+Figure~\ref{fig:alpha_steps_traj} shows the evolution of episode length across episodes for varying degrees of altruism, and Fig.~\ref{fig:alpha_steps_box} presents the aggregated distributions.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/results/alpha_steps_trajectory}
+  \caption{Episode length as a function of the degree of altruism ($\alpha_e$) across episodes.}
+  \label{fig:alpha_steps_traj}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{figures/results/full star alpha depletion.png}
+  \caption{Episode length as a function of the degree of altruism ($\alpha_e$), aggregated across episodes.}
+  \label{fig:alpha_steps_box}
+\end{figure}
+
+A positive Spearman correlation was found between the number of steps before depletion and the empathic motivation parameter ($r_s(18) = .92$, $p < .001$), indicating that simulations with agents that have higher levels of altruistic motivation were associated with longer-lasting episodes before depletion occurred.
+
+\subsubsection{Gini Coefficient.}
+Figure~\ref{fig:alpha_gini_traj} shows the evolution of the Gini coefficient across episodes, and Fig.~\ref{fig:alpha_gini_box} presents the aggregated distributions.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/results/alpha_gini_trajectory}
+  \caption{Fairness (Gini coefficient of resource access) as a function of the degree of altruism ($\alpha_e$) across episodes.}
+  \label{fig:alpha_gini_traj}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{figures/results/full star alpha Gini.png}
+  \caption{Fairness (Gini coefficient of resource access) as a function of the degree of altruism ($\alpha_e$), aggregated across episodes.}
+  \label{fig:alpha_gini_box}
+\end{figure}
+
+A positive Spearman correlation was found between the Gini coefficient and the empathic motivation parameter ($r_s(18) = .96$, $p < .001$), indicating that simulations with agents that have higher levels of altruistic motivation were associated with less equitable resource distribution.
