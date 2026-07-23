@@ -526,7 +526,7 @@ def set_global_seed(seed):
 # main entry point
 # ----------------------------------------
 
-BASE_SEED = 10
+BASE_SEED = 1
 # à changer pour mettre  
 
 
