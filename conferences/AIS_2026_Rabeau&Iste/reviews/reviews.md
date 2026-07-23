@@ -59,3 +59,8 @@ Result raises interesting question on the difference between sustainability and 
 |---|----------|-------|----------|
 | 1 | R1 | 2 (accept) | Fix observation bottleneck (add resource level/proxy to state), fix figure/text mismatches, fix typos/legend confusion |
 | 2 | R2 | -1 (weak reject) | Reframe falsifiability of hypotheses (sufficiency claim vs. theory validation), engage Hughes et al. 2018 and related literature, increase seeds/replications for ANOVA (currently 4 per condition) |
+
+
+
+
+for rew-submission : https://easychair.org/conferences/overview?a=37322171
