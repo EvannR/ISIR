@@ -1,0 +1,24 @@
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+.idea/
+.vscode/
+agents_graph/__pycache__/
+agents_graph/*.pyc
+
+empathy_tragedy/
+
+# environnements virtuels (hors depot : C:/Users/evann/venvs/isir)
+.venv/
+
+.aider*
+
+
+/00_old/
+/2D/
+/agents_graph/
+/articles/
+/conferences/
+/journal_paper/
+/.jj/

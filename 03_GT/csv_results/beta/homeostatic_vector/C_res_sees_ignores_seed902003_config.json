@@ -1,0 +1,60 @@
+{
+  "experiment": "beta_homeostatic_vector",
+  "condition": {
+    "label": "C_res_sees_ignores",
+    "agent": "DQN",
+    "see_resource": true,
+    "see_emotions": true,
+    "emotion_precision": null,
+    "see_own_meals": true,
+    "alpha": 0.0,
+    "gamma": null,
+    "gamma_others": null,
+    "reward_mode": "social",
+    "fixed_policy": null
+  },
+  "seed": 902003,
+  "nb_agents": 6,
+  "episode_number": 100,
+  "eval_every": 10,
+  "eval_dense_first": 20,
+  "eval_before_training": true,
+  "max_steps": 1000,
+  "initial_resources": 500,
+  "environment_type": "stochastic",
+  "emotion_type": "vector",
+  "beta": 0.5,
+  "smoothing": "linear",
+  "sigmoid_gain": 5.0,
+  "threshold": 0.5,
+  "emotion_decimals": 2,
+  "include_time": false,
+  "reward_scheme": "homeostatic",
+  "emotion_precision_effective": 1.0,
+  "params_dqn": {
+    "learning_rate": 0.001,
+    "gamma": 0.99,
+    "epsilon": 1.0,
+    "epsilon_decay": 0.99,
+    "epsilon_min": 0.01,
+    "batch_size": 64,
+    "hidden_size": 64,
+    "update_target_every": 10,
+    "buffer_capacity": 100000
+  },
+  "params_qlearning": {
+    "learning_rate": 0.1,
+    "gamma": 0.99,
+    "epsilon": 1.0,
+    "epsilon_decay": 0.99,
+    "epsilon_min": 0.01
+  },
+  "params_ia": {
+    "alpha_ia": 0.0,
+    "beta_ia": 0.5,
+    "lambda_ia": 0.95
+  },
+  "epsilon_decay_schedule": "per_episode",
+  "replay_buffer_persistent": true,
+  "stored_action_is_played_action": true
+}
