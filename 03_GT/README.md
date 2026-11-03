@@ -16,7 +16,7 @@ neutral value 0.5. The emotion is e_i = 2 h_i − 1, on [−1, 1].
 
 **Reward** (`homeostatic_signed`):
 
-    r_i = (1 − α) p_i + α ẽ_i,   in [−α, 1]
+    r_i = (1 − α) p_i + α ẽ_i
 
 - p_i = meal_i × (1 − h_i before the meal): a meal is worth less the more sated the agent is, and
   abstaining is worth 0.
