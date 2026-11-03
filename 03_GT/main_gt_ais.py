@@ -74,23 +74,11 @@ EMOTION_DECIMALS = 2
 
 INCLUDE_TIME = False       # optional time slot in the observation
 
-# journal model: meal value decreasing with satiety, empathic term and observed emotions on [-1, 1],
-# r in [-alpha, 1]. see agent_policies_gt_ais for the other schemes
-REWARD_SCHEME = "homeostatic_signed"
+
+REWARD_SCHEME = "homeostatic_signed" # journal model: meal value decreasing with satiety, empathic term and observed emotions on [-1, 1], r in [-alpha, 1]. see agent_policies_gt_ais for the other schemes
 
 # epsilon decays per episode: 0.99^460 ~ 0.01, exploration lasts ~460 of the 500 episodes
-PARAMS_DQN = {
-    "learning_rate": 0.001,
-    "gamma": 0.99,
-    "epsilon": 1.0,
-    "epsilon_decay": 0.99,
-    "epsilon_min": 0.01,
-    "batch_size": 64,
-    "hidden_size": 64,
-    "update_target_every": 10,
-    "buffer_capacity": 100000,
-    "learn_every": 4           # one update every 4 actions (Mnih et al. 2015)
-}
+PARAMS_DQN = {"learning_rate": 0.001,"gamma": 0.99,"epsilon": 1.0,"epsilon_decay": 0.99,"epsilon_min": 0.01,"batch_size": 64,"hidden_size": 64,"update_target_every": 10,"buffer_capacity": 100000,"learn_every": 4 }  # one update every 4 actions (Mnih et al. 2015)
 
 # ----------------------------------------
 # experiment definitions
@@ -151,9 +139,7 @@ EXPERIMENTS = {
     ],
 }
 
-# social discount factor (see analysis_01): two heads everywhere, for one architecture across the
-# grid, including the reference gamma_others = gamma
-GAMMA_SELF_EXP6 = PARAMS_DQN["gamma"]
+GAMMA_SELF_EXP6 = PARAMS_DQN["gamma"] # social discount factor (see analysis_01): two heads everywhere, for one architecture across the grid, including the reference gamma_others = gamma
 ALPHA_EXP6 = 0.5
 GAMMA_OTHERS_EXP6 = [0.99, 0.95, 0.9, 0.8, 0.0, 0.995, 0.999]
 
@@ -195,9 +181,9 @@ FIXED_POLICIES = {"random": "random",
                   "always_abstain": "always_abstain"}
 
 
-# ----------------------------------------
+# -----------------------------------------------------------------------------------------------
 # initialization of agents and environment for a new simulation
-# ----------------------------------------
+# -----------------------------------------------------------------------------------------------
 
 
 def init_env(condition, emotion_type=EMOTION_TYPE):
@@ -252,9 +238,9 @@ def init_env(condition, emotion_type=EMOTION_TYPE):
     return env, env.agents
 
 
-# ----------------------------------------
-# metrics
-# ----------------------------------------
+# -------------------------------------------------------------------------------------------
+# metric
+# --------------------------------------------------------------------------------------------
 
 
 def gini(x):
@@ -268,9 +254,9 @@ def gini(x):
     return float((n + 1 - 2 * (cum / total).sum()) / n)
 
 
-# ----------------------------------------
+# -------------------------------------------------------------------------------------------
 # step processing
-# ----------------------------------------
+# -------------------------------------------------------------------------------------------
 
 
 def run_step(env, agents, obs):  # , simulation_index, episode, step, save_steps=False
@@ -311,9 +297,9 @@ def run_step(env, agents, obs):  # , simulation_index, episode, step, save_steps
     return personal_arr, empathic_arr, combined_arr, meals_arr, next_obs, done
 
 
-# ----------------------------------------
+# -------------------------------------------------------------------------------------------------------------
 # one simulation
-# ----------------------------------------
+# -------------------------------------------------------------------------------------------------------------
 
 
 def episode_record(phase, simulation_index, seed, episode, step, env, epsilon, totals):
@@ -469,9 +455,9 @@ def run_simulation(condition, simulation_index, seed, summary_file,  # , step_fi
                      snapshot_networks(agents), agents, episode_number)
 
 
-# ----------------------------------------
+# ----------------------------------------------------------------------------------------------------
 # CSV and JSON config
-# ----------------------------------------
+# ----------------------------------------------------------------------------------------------------
 
 
 def summary_header():  # condition
@@ -695,9 +681,9 @@ def copy_summary(summary_path, target_path, condition):
         csv.writer(f).writerows(rows)
 
 
-# ----------------------------------------
+# --------------------------------------------------------------------------------------------------------
 # seed management
-# ----------------------------------------
+# --------------------------------------------------------------------------------------------------------
 
 
 def set_global_seed(seed):
@@ -711,9 +697,9 @@ def set_global_seed(seed):
         torch.backends.cudnn.benchmark = False
 
 
-# ----------------------------------------
+# --------------------------------------------------------------------------------------------------------
 # main entry point
-# ----------------------------------------
+# --------------------------------------------------------------------------------------------------------
 
 def parse_args():
     parser = argparse.ArgumentParser(
