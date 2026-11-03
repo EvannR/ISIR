@@ -22,3 +22,12 @@ empathy_tragedy/
 /conferences/
 /journal_paper/
 /.jj/
+
+# pas encore versionne
+/03_GT/analysis/analysis_exp8_frozen_weight.ipynb
+
+# notes de travail et essais
+/03_GT/agy_tracker.md
+/03_GT/EXPERIMENT_TRACKER.md
+/03_GT/main_beta.py
+/03_GT/main_beta-surfaceEvann.py
